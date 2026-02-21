@@ -9,50 +9,55 @@ export class MatchesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createMatchDto: CreateMatchDto) {
-    const { modality, targetPoints, teamAName, teamBName, playersA, playersB } =
-      createMatchDto;
+    try {
+      const { modality, targetPoints, teamAName, teamBName, playersA, playersB } =
+        createMatchDto;
 
-    return await this.prisma.$transaction(async (tx) => {
-      const match = await tx.match.create({
-        data: {
-          modality,
-          targetPoints,
-          teamAName,
-          teamBName,
-        },
-      });
-
-      const allPlayers = [
-        ...playersA.map((name) => ({ name, side: 'A' })),
-        ...playersB.map((name) => ({ name, side: 'B' })),
-      ];
-
-      for (const p of allPlayers) {
-        const player = await tx.player.create({
-          data: { name: p.name },
-        });
-        await tx.matchPlayer.create({
+      return await this.prisma.$transaction(async (tx) => {
+        const match = await tx.match.create({
           data: {
-            matchId: match.id,
-            playerId: player.id,
-            teamSide: p.side,
+            modality,
+            targetPoints,
+            teamAName,
+            teamBName,
           },
         });
-      }
 
-      return tx.match.findUnique({
-        where: { id: match.id },
-        include: {
-          players: {
-            include: { player: true },
+        const allPlayers = [
+          ...playersA.map((name) => ({ name, side: 'A' })),
+          ...playersB.map((name) => ({ name, side: 'B' })),
+        ];
+
+        for (const p of allPlayers) {
+          const player = await tx.player.create({
+            data: { name: p.name },
+          });
+          await tx.matchPlayer.create({
+            data: {
+              matchId: match.id,
+              playerId: player.id,
+              teamSide: p.side,
+            },
+          });
+        }
+
+        return tx.match.findUnique({
+          where: { id: match.id },
+          include: {
+            players: {
+              include: { player: true },
+            },
+            hands: true,
+            throws: {
+              include: { player: true },
+            },
           },
-          hands: true,
-          throws: {
-            include: { player: true },
-          },
-        },
+        });
       });
-    });
+    } catch (error) {
+      console.error('Error creating match:', error);
+      throw error;
+    }
   }
 
   async findAll() {

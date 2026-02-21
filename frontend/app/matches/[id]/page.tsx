@@ -12,11 +12,16 @@ import {
   CheckCircle2,
   Save,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Trophy,
+  Target,
+  Zap,
+  RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -84,7 +89,6 @@ export default function LiveMatch() {
         note: note || undefined,
       });
 
-      // Reset form (keep team and player for speed)
       setEffectiveness(null);
       setDistance('');
       setNote('');
@@ -141,7 +145,7 @@ export default function LiveMatch() {
     }
   };
 
-  if (loading || !match) return <div className="p-10 text-center">Cargando partida...</div>;
+  if (loading || !match) return <div className="p-10 text-center font-black text-slate-400 animate-pulse">Cargando partida...</div>;
 
   const currentHandNumber = match.hands.length + 1;
   const currentHandThrows = match.throws.filter(t => t.handNumber === currentHandNumber);
@@ -159,67 +163,111 @@ export default function LiveMatch() {
     return currentHandThrows.filter(t => t.playerId === playerId).length;
   };
 
+  const isWinnerA = scoreA >= match.targetPoints;
+  const isWinnerB = scoreB >= match.targetPoints;
+
   return (
-    <div className="flex flex-col gap-4 pb-24">
+    <div className="flex flex-col gap-6 pb-40">
       {/* Header Info */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col gap-3">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-white/50 flex flex-col gap-6"
+      >
         <div className="flex justify-between items-center">
-          <Link href="/" className="text-slate-400"><ChevronLeft size={24} /></Link>
-          <div className="text-sm font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600">
-            MANO {currentHandNumber}
+          <Link href="/" className="p-3 hover:bg-white/50 rounded-2xl transition-all active:scale-90"><ChevronLeft size={24} /></Link>
+          <div className="text-[10px] font-black bg-indigo-600 px-5 py-2.5 rounded-full text-white tracking-[0.2em] uppercase">
+            Mano {currentHandNumber}
           </div>
-          <Link href={`/matches/${id}/performance`} className="text-blue-600"><BarChart2 size={24} /></Link>
+          <Link href={`/matches/${id}/performance`} className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl transition-all active:scale-90"><BarChart2 size={24} /></Link>
         </div>
 
         <div className="flex justify-between items-center gap-4">
           <div className="flex-1 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase truncate">{match.teamAName}</div>
-            <div className="text-4xl font-black text-blue-600">{scoreA}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{match.teamAName}</div>
+            <motion.div
+              key={scoreA}
+              initial={{ scale: 1.5, color: '#4f46e5' }}
+              animate={{ scale: 1, color: '#4f46e5' }}
+              className="text-6xl font-black tabular-nums"
+            >
+              {scoreA}
+            </motion.div>
           </div>
-          <div className="text-2xl font-black text-slate-300">vs</div>
+          <div className="text-2xl font-black text-slate-200 italic">VS</div>
           <div className="flex-1 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase truncate">{match.teamBName}</div>
-            <div className="text-4xl font-black text-red-600">{scoreB}</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{match.teamBName}</div>
+            <motion.div
+              key={scoreB}
+              initial={{ scale: 1.5, color: '#f43f5e' }}
+              animate={{ scale: 1, color: '#f43f5e' }}
+              className="text-6xl font-black tabular-nums"
+            >
+              {scoreB}
+            </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {match.status === 'FINISHED' ? (
-        <div className="bg-green-50 border-2 border-green-200 p-6 rounded-xl text-center space-y-4">
-          <CheckCircle2 size={48} className="mx-auto text-green-500" />
-          <div>
-            <h3 className="text-xl font-bold text-green-800">PARTIDA FINALIZADA</h3>
-            <p className="text-green-600">Motivo: {match.endReason}</p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-emerald-500 p-10 rounded-[3rem] text-center space-y-8 shadow-2xl shadow-emerald-200 relative overflow-hidden"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+          />
+
+          <div className="relative z-10 space-y-6">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+              <Trophy size={48} className="text-emerald-500" />
+            </div>
+            <div>
+              <h3 className="text-4xl font-black text-white tracking-tight uppercase leading-none">¡VICTORIA!</h3>
+              <p className="text-emerald-100 font-black mt-4 text-2xl">
+                {scoreA > scoreB ? match.teamAName : match.teamBName}
+              </p>
+            </div>
+
+            <div className="pt-4 space-y-4">
+              <Link
+                href={`/matches/${id}/performance`}
+                className="block w-full bg-white text-emerald-600 p-6 rounded-[2rem] font-black text-xl shadow-xl hover:bg-emerald-50 transition-all active:scale-95"
+              >
+                VER REPORTE FINAL
+              </Link>
+              <button
+                onClick={() => {
+                    if(confirm("¿Deseas reabrir la partida?")) {
+                        api.post(`/matches/${id}/finish`, { status: 'IN_PROGRESS' }).then(() => fetchMatch());
+                    }
+                }}
+                className="text-xs font-black text-white/60 hover:text-white underline uppercase tracking-widest transition-colors"
+              >
+                Reabrir para correcciones
+              </button>
+            </div>
           </div>
-          <Link
-            href={`/matches/${id}/performance`}
-            className="block w-full bg-green-600 text-white p-3 rounded-lg font-bold shadow-md"
-          >
-            VER PERFORMANCE FINAL
-          </Link>
-          <button
-            onClick={() => {
-                if(confirm("¿Deseas reabrir la partida para correcciones?")) {
-                    api.post(`/matches/${id}/finish`, { status: 'IN_PROGRESS' }).then(() => fetchMatch());
-                }
-            }}
-            className="text-xs text-green-700 underline"
-          >
-            Desbloquear edición (Modo corrección)
-          </button>
-        </div>
+        </motion.div>
       ) : (
         <>
           {/* Throw Registration Form */}
-          <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-blue-50 space-y-5">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass p-6 rounded-[3rem] shadow-2xl shadow-slate-200/30 border border-white/50 space-y-8"
+          >
             {/* Team & Player Selection */}
-            <div className="space-y-3">
-              <div className="flex gap-2">
+            <div className="space-y-4">
+              <div className="flex p-1.5 bg-slate-100/50 rounded-[1.8rem] gap-1">
                 <button
                   onClick={() => handleTeamChange('A')}
                   className={cn(
-                    "flex-1 py-2 rounded-lg font-bold text-sm transition-all border-2",
-                    selectedTeam === 'A' ? "bg-blue-600 text-white border-blue-600 shadow-md" : "bg-white text-slate-400 border-slate-100"
+                    "flex-1 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all",
+                    selectedTeam === 'A' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"
                   )}
                 >
                   {match.teamAName}
@@ -227,287 +275,331 @@ export default function LiveMatch() {
                 <button
                   onClick={() => handleTeamChange('B')}
                   className={cn(
-                    "flex-1 py-2 rounded-lg font-bold text-sm transition-all border-2",
-                    selectedTeam === 'B' ? "bg-red-600 text-white border-red-600 shadow-md" : "bg-white text-slate-400 border-slate-100"
+                    "flex-1 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all",
+                    selectedTeam === 'B' ? "bg-white text-rose-600 shadow-sm" : "text-slate-400"
                   )}
                 >
                   {match.teamBName}
                 </button>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar px-1">
                 {match.players
                   .filter(p => p.teamSide === selectedTeam)
                   .map(mp => {
                     const used = getBallsUsed(mp.playerId);
+                    const isSelected = selectedPlayerId === mp.playerId;
                     return (
-                      <button
+                      <motion.button
                         key={mp.playerId}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedPlayerId(mp.playerId)}
                         className={cn(
-                          "flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all flex flex-col items-center min-w-[80px]",
-                          selectedPlayerId === mp.playerId
-                            ? (selectedTeam === 'A' ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm" : "border-red-600 bg-red-50 text-red-700 shadow-sm")
-                            : "border-slate-100 bg-slate-50 text-slate-500"
+                          "flex-shrink-0 px-6 py-5 rounded-[2.2rem] border-2 transition-all flex flex-col items-center min-w-[110px]",
+                          isSelected
+                            ? (selectedTeam === 'A' ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
+                            : "border-transparent bg-slate-50 text-slate-400"
                         )}
                       >
-                        <span className="text-xs font-bold truncate w-20 text-center">{mp.player.name}</span>
-                        <span className={cn(
-                          "text-xs font-black mt-1",
-                          used >= ballsPerPlayer ? "text-orange-500" : "text-slate-400"
-                        )}>
-                          {used}/{ballsPerPlayer}
-                        </span>
-                      </button>
+                        <span className="text-[10px] font-black truncate w-24 text-center uppercase tracking-tight mb-3">{mp.player.name}</span>
+                        <div className="flex gap-1.5">
+                            {[...Array(ballsPerPlayer)].map((_, i) => (
+                                <div key={i} className={cn(
+                                    "w-2 h-2 rounded-full",
+                                    i < used ? (selectedTeam === 'A' ? "bg-indigo-600" : "bg-rose-600") : "bg-slate-200"
+                                )} />
+                            ))}
+                        </div>
+                      </motion.button>
                     );
                   })}
               </div>
             </div>
 
             {/* Type & Score */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => setThrowType('POINT')}
                 className={cn(
-                  "py-3 rounded-lg font-black border-2 transition-all",
-                  throwType === 'POINT' ? "bg-slate-800 text-white border-slate-800" : "bg-slate-50 text-slate-400 border-slate-100"
+                  "py-5 rounded-[1.8rem] font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-2",
+                  throwType === 'POINT' ? "bg-slate-900 text-white border-slate-900 shadow-xl" : "bg-slate-50 text-slate-400 border-transparent"
                 )}
               >
-                POINT
+                <Target size={16} /> Point
               </button>
               <button
                 onClick={() => setThrowType('TIR')}
                 className={cn(
-                  "py-3 rounded-lg font-black border-2 transition-all",
-                  throwType === 'TIR' ? "bg-slate-800 text-white border-slate-800" : "bg-slate-50 text-slate-400 border-slate-100"
+                  "py-5 rounded-[1.8rem] font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-2",
+                  throwType === 'TIR' ? "bg-slate-900 text-white border-slate-900 shadow-xl" : "bg-slate-50 text-slate-400 border-transparent"
                 )}
               >
-                TIR
+                <Zap size={16} /> Tir
               </button>
             </div>
 
-            <div className="grid grid-cols-5 gap-1.5">
-              {[-2, -1, 0, 1, 2].map(score => (
-                <button
-                  key={score}
-                  onClick={() => setEffectiveness(score)}
-                  className={cn(
-                    "h-16 rounded-lg text-2xl font-black transition-all flex flex-col items-center justify-center border-2",
-                    effectiveness === score
-                      ? "bg-blue-600 text-white border-blue-600 scale-105 z-10 shadow-lg"
-                      : "bg-slate-50 text-slate-600 border-slate-100"
-                  )}
-                >
-                  {score > 0 ? `+${score}` : score}
-                  <span className="text-[8px] font-bold opacity-70 mt-[-2px]">
-                    {score === -2 ? 'PÉSIMO' : score === -1 ? 'MAL' : score === 0 ? 'NEUTRO' : score === 1 ? 'BIEN' : 'EXC.'}
-                  </span>
-                </button>
-              ))}
+            <div className="grid grid-cols-5 gap-2.5">
+              {[-2, -1, 0, 1, 2].map(score => {
+                const isSelected = effectiveness === score;
+                const isPositive = score > 0;
+                const isNegative = score < 0;
+
+                return (
+                  <motion.button
+                    key={score}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setEffectiveness(score)}
+                    className={cn(
+                      "h-24 rounded-[1.8rem] text-3xl font-black transition-all flex flex-col items-center justify-center border-2",
+                      isSelected
+                        ? (isPositive ? "bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-200 scale-105 z-10" :
+                           isNegative ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-200 scale-105 z-10" :
+                           "bg-slate-800 text-white border-slate-800 shadow-lg scale-105 z-10")
+                        : "bg-slate-50 text-slate-400 border-transparent"
+                    )}
+                  >
+                    {score > 0 ? `+${score}` : score}
+                    <span className="text-[7px] font-black opacity-60 mt-1 uppercase tracking-tighter">
+                      {score === -2 ? 'Pésimo' : score === -1 ? 'Mal' : score === 0 ? 'Neutro' : score === 1 ? 'Bien' : 'Exc.'}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </div>
 
-            <div className="flex gap-2">
-                <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Distancia (d)"
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
-                    className="flex-1 p-3 bg-slate-50 rounded-lg text-sm border-0 focus:ring-2 focus:ring-blue-600"
-                />
-                <input
-                    type="text"
-                    placeholder="Nota"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    className="flex-[2] p-3 bg-slate-50 rounded-lg text-sm border-0 focus:ring-2 focus:ring-blue-600"
-                />
+            <div className="flex gap-3">
+                <div className="flex-1 bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
+                    <span className="text-[10px] font-black text-slate-300 uppercase italic">Dist</span>
+                    <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={distance}
+                        onChange={(e) => setDistance(e.target.value)}
+                        className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
+                    />
+                </div>
+                <div className="flex-[1.5] bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
+                    <span className="text-[10px] font-black text-slate-300 uppercase italic">Nota</span>
+                    <input
+                        type="text"
+                        placeholder="..."
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
+                    />
+                </div>
             </div>
+          </motion.div>
 
-            <button
+          {/* Floating Actions Container */}
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md glass rounded-[2.5rem] p-4 shadow-2xl z-40 flex gap-4 ring-1 ring-white/50 backdrop-blur-2xl">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={handleSaveThrow}
               disabled={effectiveness === null}
-              className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xl shadow-blue-200 shadow-xl disabled:bg-slate-200 transition-all flex items-center justify-center gap-2"
+              className="flex-[2.5] bg-indigo-600 text-white py-6 rounded-[2rem] font-black text-xl shadow-xl shadow-indigo-200 disabled:bg-slate-200 disabled:shadow-none transition-all flex items-center justify-center gap-3"
             >
               <Save size={24} />
               GUARDAR BOLA
-            </button>
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setClosingHand(true)}
+              className="flex-1 bg-white border-2 border-slate-900 text-slate-900 py-6 rounded-[2rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center text-center leading-tight"
+            >
+              FIN<br/>MANO
+            </motion.button>
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setClosingHand(true)}
-              className="bg-white border-2 border-slate-800 text-slate-800 p-4 rounded-xl font-bold flex flex-col items-center gap-1 shadow-sm"
-            >
-              <CheckCircle2 className="text-green-600" />
-              CERRAR MANO
-            </button>
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={handleCancelHand}
-              className="bg-white border-2 border-slate-200 text-slate-400 p-4 rounded-xl font-bold flex flex-col items-center gap-1"
+              className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-rose-500 transition-all shadow-sm"
             >
-              <XCircle className="text-slate-400" />
-              MANO ANULADA
+              <RotateCcw size={24} />
+              Anular Mano
+            </button>
+            <button
+              onClick={() => setFinishingMatch(true)}
+              className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-indigo-500 transition-all shadow-sm"
+            >
+              <AlertCircle size={24} />
+              Terminar
             </button>
           </div>
-
-          <button
-            onClick={() => setFinishingMatch(true)}
-            className="w-full bg-slate-100 text-slate-500 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"
-          >
-            <AlertCircle size={18} />
-            FINALIZAR PARTIDA
-          </button>
         </>
       )}
 
-      {/* History Toggle */}
-      <button
-        onClick={() => setShowHistory(!showHistory)}
-        className="flex items-center gap-2 text-slate-500 font-bold px-2"
-      >
-        <History size={18} />
-        {showHistory ? 'Ocultar historial' : 'Ver historial de lanzamientos'}
-      </button>
+      {/* History Section */}
+      <div className="space-y-4 pt-10">
+          <div className="flex items-center justify-between px-4">
+            <h3 className="font-black text-slate-400 uppercase tracking-widest text-[10px] flex items-center gap-2">
+                <History size={14} /> Historial
+            </h3>
+            <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="text-[10px] font-black text-indigo-600 uppercase tracking-widest"
+            >
+                {showHistory ? 'Ocultar' : 'Ver todo'}
+            </button>
+          </div>
 
-      {showHistory && (
-        <div className="space-y-4">
-          {[...Array(currentHandNumber)].map((_, i) => {
-            const hNum = currentHandNumber - i;
-            const hThrows = match.throws.filter(t => t.handNumber === hNum);
-            const handRecord = match.hands.find(h => h.handNumber === hNum);
+          <AnimatePresence>
+            {showHistory && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 overflow-hidden px-1"
+                >
+                {[...Array(currentHandNumber)].map((_, i) => {
+                    const hNum = currentHandNumber - i;
+                    const hThrows = match.throws.filter(t => t.handNumber === hNum);
+                    const handRecord = match.hands.find(h => h.handNumber === hNum);
 
-            if (hThrows.length === 0 && !handRecord) return null;
+                    if (hThrows.length === 0 && !handRecord) return null;
 
-            return (
-              <div key={hNum} className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
-                <div className="bg-slate-50 p-3 flex justify-between items-center border-b border-slate-100">
-                  <span className="font-bold text-slate-700">MANO {hNum}</span>
-                  {handRecord ? (
-                    handRecord.status === 'CANCELED' ? (
-                        <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded">ANULADA</span>
-                    ) : (
-                        <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                            {handRecord.pointsTeam === 'A' ? match.teamAName : match.teamBName} +{handRecord.pointsValue}
-                        </span>
-                    )
-                  ) : (
-                    <span className="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded">EN CURSO</span>
-                  )}
-                </div>
-                <div className="divide-y divide-slate-50">
-                  {hThrows.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(t => (
-                    <div key={t.id} className="p-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 overflow-hidden">
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm",
-                          t.effectivenessScore > 0 ? "bg-green-100 text-green-700" : t.effectivenessScore < 0 ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"
-                        )}>
-                          {t.effectivenessScore > 0 ? `+${t.effectivenessScore}` : t.effectivenessScore}
+                    return (
+                    <div key={hNum} className="glass rounded-[2rem] border-white/50 overflow-hidden shadow-sm">
+                        <div className="bg-slate-50/50 p-5 flex justify-between items-center border-b border-white/50">
+                        <span className="font-black text-slate-800 text-xs">MANO {hNum}</span>
+                        {handRecord ? (
+                            handRecord.status === 'CANCELED' ? (
+                                <span className="text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1 rounded-full uppercase">Anulada</span>
+                            ) : (
+                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full uppercase">
+                                    {handRecord.pointsTeam === 'A' ? match.teamAName : match.teamBName} +{handRecord.pointsValue}
+                                </span>
+                            )
+                        ) : (
+                            <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full uppercase animate-pulse">En Curso</span>
+                        )}
                         </div>
-                        <div className="overflow-hidden">
-                          <div className="text-sm font-bold truncate">
-                            {t.player?.name} <span className="text-[10px] text-slate-400">({t.throwType})</span>
-                          </div>
-                          {t.note && <div className="text-[10px] text-slate-400 italic truncate">{t.note}</div>}
+                        <div className="divide-y divide-white/20">
+                        {hThrows.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(t => (
+                            <div key={t.id} className="p-5 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                                <div className={cn(
+                                "w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shadow-sm",
+                                t.effectivenessScore > 0 ? "bg-emerald-500 text-white" : t.effectivenessScore < 0 ? "bg-rose-500 text-white" : "bg-slate-200 text-slate-600"
+                                )}>
+                                {t.effectivenessScore > 0 ? `+${t.effectivenessScore}` : t.effectivenessScore}
+                                </div>
+                                <div className="overflow-hidden">
+                                <div className="text-sm font-black text-slate-700 truncate">
+                                    {t.player?.name}
+                                </div>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{t.throwType}</span>
+                                    {t.note && <span className="text-[9px] text-slate-400 font-medium truncate italic border-l border-slate-200 pl-2">{t.note}</span>}
+                                </div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => handleDeleteThrow(t.id)}
+                                className="w-10 h-10 flex items-center justify-center text-slate-200 hover:text-rose-500 transition-colors active:scale-90"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                            </div>
+                        ))}
                         </div>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteThrow(t.id)}
-                        className="text-slate-300 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
                     </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                    );
+                })}
+                </motion.div>
+            )}
+          </AnimatePresence>
+      </div>
 
       {/* Modals */}
-      {closingHand && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl p-6 space-y-6 animate-in slide-in-from-bottom duration-300">
-            <h3 className="text-xl font-black text-center">CERRAR MANO {currentHandNumber}</h3>
+      <AnimatePresence>
+        {closingHand && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4">
+            <motion.div
+                initial={{ y: 200, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 200, opacity: 0 }}
+                className="bg-white w-full max-w-md rounded-[3.5rem] p-10 space-y-10 shadow-2xl"
+            >
+                <div className="text-center">
+                    <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Cerrar Mano {currentHandNumber}</h3>
+                    <p className="text-slate-400 font-bold mt-2 text-sm">¿Quién sumó puntos en esta mano?</p>
+                </div>
 
-            <div className="space-y-4">
-              <label className="block text-center font-bold text-slate-500">¿Quién ganó la mano?</label>
-              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-4">
+                    <button
+                        onClick={() => handleCloseHand('A', 1)}
+                        className="bg-indigo-600 text-white p-7 rounded-[2.5rem] font-black shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all text-sm uppercase tracking-widest"
+                    >
+                        {match.teamAName}
+                    </button>
+                    <button
+                        onClick={() => handleCloseHand('B', 1)}
+                        className="bg-rose-600 text-white p-7 rounded-[2.5rem] font-black shadow-xl shadow-rose-100 hover:bg-rose-700 active:scale-95 transition-all text-sm uppercase tracking-widest"
+                    >
+                        {match.teamBName}
+                    </button>
+                </div>
+
+                <div className="bg-slate-50/50 p-8 rounded-[3rem] space-y-6 border border-slate-100">
+                    <span className="block text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Puntuación Específica</span>
+                    <div className="grid grid-cols-3 gap-3">
+                        {[1,2,3,4,5,6].map(v => (
+                        <div key={v} className="flex flex-col gap-2">
+                            <button onClick={() => handleCloseHand('A', v)} className="bg-white text-indigo-600 py-3.5 rounded-2xl font-black text-xs shadow-sm active:bg-indigo-50 border border-slate-100">+A {v}</button>
+                            <button onClick={() => handleCloseHand('B', v)} className="bg-white text-rose-600 py-3.5 rounded-2xl font-black text-xs shadow-sm active:bg-rose-50 border border-slate-100">+B {v}</button>
+                        </div>
+                        ))}
+                    </div>
+                </div>
+                </div>
+
                 <button
-                  onClick={() => handleCloseHand('A', 1)}
-                  className="bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg"
+                onClick={() => setClosingHand(false)}
+                className="w-full py-4 text-slate-300 font-black uppercase tracking-widest text-xs hover:text-slate-500 transition-colors"
                 >
-                  {match.teamAName}
+                Volver
+                </button>
+            </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {finishingMatch && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4">
+            <motion.div
+                initial={{ y: 200, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 200, opacity: 0 }}
+                className="bg-white w-full max-w-md rounded-[3.5rem] p-10 space-y-10 shadow-2xl"
+            >
+                <div className="text-center">
+                    <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Finalizar</h3>
+                    <p className="text-slate-400 font-bold mt-2 text-sm">¿Deseas concluir la partida ahora?</p>
+                </div>
+
+                <div className="space-y-4">
+                <button
+                    onClick={() => handleFinishMatch('MANUAL')}
+                    className="w-full p-7 bg-slate-900 text-white rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all"
+                >
+                    Finalizar Partida
                 </button>
                 <button
-                  onClick={() => handleCloseHand('B', 1)}
-                  className="bg-red-600 text-white p-4 rounded-xl font-bold shadow-lg"
+                    onClick={() => setFinishingMatch(false)}
+                    className="w-full p-7 bg-slate-50 text-slate-400 rounded-[2.5rem] font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
                 >
-                  {match.teamBName}
+                    Continuar Jugando
                 </button>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-[1px] bg-slate-100"></div>
-                <span className="text-xs font-bold text-slate-300">O INGRESA PUNTOS</span>
-                <div className="flex-1 h-[1px] bg-slate-100"></div>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {[1,2,3,4,5,6].map(v => (
-                  <div key={v} className="flex flex-col gap-1">
-                     <button onClick={() => handleCloseHand('A', v)} className="bg-blue-50 text-blue-600 p-2 rounded-lg font-bold text-xs">A +{v}</button>
-                     <button onClick={() => handleCloseHand('B', v)} className="bg-red-50 text-red-600 p-2 rounded-lg font-bold text-xs">B +{v}</button>
-                  </div>
-                ))}
-              </div>
+                </div>
+            </motion.div>
             </div>
-
-            <button
-              onClick={() => setClosingHand(false)}
-              className="w-full p-4 text-slate-400 font-bold"
-            >
-              CANCELAR
-            </button>
-          </div>
-        </div>
-      )}
-
-      {finishingMatch && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl p-6 space-y-6">
-            <h3 className="text-xl font-black text-center text-slate-800">FINALIZAR PARTIDA</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => handleFinishMatch('TARGET_REACHED')}
-                className="w-full p-4 bg-slate-800 text-white rounded-xl font-bold"
-              >
-                PUNTUACIÓN ALCANZADA
-              </button>
-              <button
-                onClick={() => handleFinishMatch('TIME')}
-                className="w-full p-4 bg-slate-100 text-slate-700 rounded-xl font-bold"
-              >
-                POR TIEMPO
-              </button>
-              <button
-                onClick={() => handleFinishMatch('MANUAL')}
-                className="w-full p-4 bg-slate-100 text-slate-700 rounded-xl font-bold"
-              >
-                FINALIZADO MANUALMENTE
-              </button>
-            </div>
-            <button
-              onClick={() => setFinishingMatch(false)}
-              className="w-full p-4 text-slate-400 font-bold"
-            >
-              CANCELAR
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

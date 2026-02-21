@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { corsConfig } from '../src/cors.config';
 
 describe('CORS (e2e)', () => {
   let app: INestApplication;
@@ -34,7 +33,16 @@ describe('CORS (e2e)', () => {
     .compile();
 
     app = moduleFixture.createNestApplication();
-    app.enableCors(corsConfig);
+    app.enableCors({
+      origin: [
+        'https://stats_petanca-production.up.railway.app',
+        'https://statspetanca-production.up.railway.app',
+      ],
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: 'Content-Type, Authorization',
+      credentials: true,
+      optionsSuccessStatus: 204,
+    });
     await app.init();
   });
 
@@ -56,7 +64,7 @@ describe('CORS (e2e)', () => {
      return request(app.getHttpServer())
       .options('/matches')
       .set('Origin', 'https://evil.com')
-      .expect((res) => {
+      .then((res) => {
           if (res.headers['access-control-allow-origin'] === 'https://evil.com') {
               throw new Error('Should not allow evil.com');
           }
