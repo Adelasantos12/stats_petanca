@@ -12,8 +12,7 @@ import {
   Info,
   Medal,
   Activity,
-  Award,
-  BarChart3
+  Award
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
