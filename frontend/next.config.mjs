@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
+
 const backendOrigin =
-  process.env.API_SERVER_URL || process.env.NEXT_PUBLIC_API_URL || '';
+  process.env.API_SERVER_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  '';
 
 const nextConfig = {
   async rewrites() {
     if (!backendOrigin) {
-      // Avoid silently proxying to localhost in production containers.
+      // Avoid proxying to localhost in production containers
       return [];
     }
 
