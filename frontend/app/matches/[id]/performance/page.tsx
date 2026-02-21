@@ -9,10 +9,13 @@ import {
   Target,
   Zap,
   TrendingUp,
-  User,
-  Info
+  Info,
+  Medal,
+  Activity,
+  Award
 } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
   BarChart,
   Bar,
@@ -51,7 +54,7 @@ export default function Performance() {
     fetchData();
   }, [id]);
 
-  if (loading || !performance || !match) return <div className="p-10 text-center">Cargando performance...</div>;
+  if (loading || !performance || !match) return <div className="p-20 text-center font-black text-slate-300 animate-pulse">Analizando rendimiento técnico...</div>;
 
   // Prepare chart data
   const playerComparisonData = performance.players.map(p => ({
@@ -66,8 +69,6 @@ export default function Performance() {
     TIR: p.tir.performance || 0,
   }));
 
-  // Evolution per hand (of each team)
-  // We need to calculate this from match.throws and match.hands
   const calculateEvolution = (side: 'A' | 'B') => {
     const hands = match.hands.filter(h => h.status === 'NORMAL').map(h => h.handNumber).sort((a,b) => a - b);
     return hands.map(hNum => {
@@ -87,169 +88,217 @@ export default function Performance() {
   const evolutionB = calculateEvolution('B');
 
   const COLORS = {
-    A: '#2563eb', // Blue
-    B: '#dc2626', // Red
-    POINT: '#8b5cf6', // Violet
+    A: '#4f46e5', // Indigo
+    B: '#f43f5e', // Rose
+    POINT: '#10b981', // Emerald
     TIR: '#f59e0b', // Amber
   };
 
   return (
-    <div className="space-y-8 pb-10">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-10 pb-20"
+    >
       <div className="flex items-center gap-4">
-        <Link href={`/matches/${id}`} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-          <ChevronLeft size={24} />
+        <Link href={`/matches/${id}`} className="p-3 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all active:scale-90">
+          <ChevronLeft size={24} className="text-slate-600" />
         </Link>
-        <h2 className="text-2xl font-bold">Performance Técnico</h2>
+        <div>
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight">Performance Técnico</h2>
+          <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">Reporte Analítico Final</p>
+        </div>
       </div>
 
       {/* Team Summaries */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-600">
-          <div className="text-xs font-bold text-slate-400 uppercase">{match.teamAName}</div>
-          <div className="text-3xl font-black text-blue-600">{performance.teams.A.performance || '—'}%</div>
-          <div className="text-[10px] text-slate-400 font-bold mt-1">TOTAL EQUIPO</div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-red-600">
-          <div className="text-xs font-bold text-slate-400 uppercase">{match.teamBName}</div>
-          <div className="text-3xl font-black text-red-600">{performance.teams.B.performance || '—'}%</div>
-          <div className="text-[10px] text-slate-400 font-bold mt-1">TOTAL EQUIPO</div>
-        </div>
+      <div className="grid grid-cols-2 gap-6">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
+            <Medal size={120} />
+          </div>
+          <div className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em] mb-2">{match.teamAName}</div>
+          <div className="text-5xl font-black text-white">{performance.teams.A.performance || '0'}%</div>
+          <div className="text-[10px] text-indigo-100 font-black mt-3 flex items-center gap-1">
+             <Activity size={12} /> GLOBAL EQUIPO
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-rose-600 p-8 rounded-[2.5rem] shadow-2xl shadow-rose-200 relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
+            <Medal size={120} />
+          </div>
+          <div className="text-[10px] font-black text-rose-200 uppercase tracking-[0.2em] mb-2">{match.teamBName}</div>
+          <div className="text-5xl font-black text-white">{performance.teams.B.performance || '0'}%</div>
+          <div className="text-[10px] text-rose-100 font-black mt-3 flex items-center gap-1">
+             <Activity size={12} /> GLOBAL EQUIPO
+          </div>
+        </motion.div>
       </div>
 
       {/* Individual Player Cards */}
-      <div className="space-y-4">
-        <h3 className="font-bold text-slate-800 flex items-center gap-2">
-            <User size={18} /> Performance por Jugador
+      <div className="space-y-6">
+        <h3 className="font-black text-slate-800 flex items-center gap-2 text-xl tracking-tight">
+            <Award size={24} className="text-indigo-600" /> Rendimiento Individual
         </h3>
-        <div className="grid gap-4">
-          {performance.players.map(p => (
-            <div key={p.playerId} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-              <div className="flex justify-between items-start mb-4">
+        <div className="grid md:grid-cols-2 gap-6">
+          {performance.players.map((p, idx) => (
+            <motion.div
+              key={p.playerId}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * idx }}
+              className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <div className="text-lg font-black text-slate-800">{p.playerName}</div>
-                  <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${p.teamSide === 'A' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
+                  <div className="text-xl font-black text-slate-800 leading-none mb-1">{p.playerName}</div>
+                  <div className={`text-[10px] font-black px-3 py-1 rounded-full inline-block uppercase tracking-widest ${p.teamSide === 'A' ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'}`}>
                     {p.teamSide === 'A' ? match.teamAName : match.teamBName}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-black text-slate-800">{p.total.performance ?? '—'}%</div>
-                  <div className="text-[10px] font-bold text-slate-400">GLOBAL</div>
+                  <div className="text-3xl font-black text-slate-900">{p.total.performance ?? '0'}%</div>
+                  <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Score Técnico</div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
-                    <Target size={12} className="text-violet-500" /> POINT
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
+                <div className="p-4 bg-slate-50 rounded-2xl space-y-1">
+                  <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <Target size={10} className="text-emerald-500" /> Point
                   </div>
-                  <div className="text-xl font-black text-slate-700">{p.point.performance ?? '—'}%</div>
-                  <div className="text-[10px] text-slate-400">n = {p.point.n}</div>
+                  <div className="text-2xl font-black text-slate-800">{p.point.performance ?? '0'}%</div>
+                  <div className="text-[9px] font-bold text-slate-300 italic">n = {p.point.n}</div>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
-                    <Zap size={12} className="text-amber-500" /> TIR
+                <div className="p-4 bg-slate-50 rounded-2xl space-y-1">
+                  <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <Zap size={10} className="text-amber-500" /> Tir
                   </div>
-                  <div className="text-xl font-black text-slate-700">{p.tir.performance ?? '—'}%</div>
-                  <div className="text-[10px] text-slate-400">n = {p.tir.n}</div>
+                  <div className="text-2xl font-black text-slate-800">{p.tir.performance ?? '0'}%</div>
+                  <div className="text-[9px] font-bold text-slate-300 italic">n = {p.tir.n}</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
       {/* Charts Section */}
-      <div className="space-y-6">
-        <h3 className="font-bold text-slate-800 flex items-center gap-2">
-            <TrendingUp size={18} /> Gráficos de Análisis
+      <div className="space-y-8">
+        <h3 className="font-black text-slate-800 flex items-center gap-2 text-xl tracking-tight">
+            <TrendingUp size={24} className="text-indigo-600" /> Visualización de Datos
         </h3>
 
-        {/* Comparison Chart */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-          <h4 className="text-xs font-bold text-slate-400 uppercase mb-6">Comparativa Performance Total</h4>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={playerComparisonData} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                <XAxis type="number" domain={[0, 100]} hide />
-                <YAxis dataKey="name" type="category" width={80} style={{ fontSize: '12px', fontWeight: 'bold' }} />
-                <Tooltip
-                  formatter={(value) => [`${value}%`, 'Performance']}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                />
-                <Bar dataKey="performance" radius={[0, 4, 4, 0]} barSize={30}>
-                  {playerComparisonData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.side === 'A' ? COLORS.A : COLORS.B} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <div className="grid gap-8">
+            {/* Comparison Chart */}
+            <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+            >
+                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Comparativa de Rendimiento Total</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={playerComparisonData} layout="vertical" margin={{ left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                        <XAxis type="number" domain={[0, 100]} hide />
+                        <YAxis dataKey="name" type="category" width={100} axisLine={false} tickLine={false} style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', fill: '#64748b' }} />
+                        <Tooltip
+                            cursor={{ fill: '#f8fafc' }}
+                            formatter={(value) => [`${value}%`, 'Eficiencia']}
+                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: '900' }}
+                        />
+                        <Bar dataKey="performance" radius={[0, 10, 10, 0]} barSize={24}>
+                        {playerComparisonData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.side === 'A' ? COLORS.A : COLORS.B} />
+                        ))}
+                        </Bar>
+                    </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </motion.div>
 
-        {/* POINT vs TIR Chart */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-          <h4 className="text-xs font-bold text-slate-400 uppercase mb-6">POINT vs TIR por Jugador</h4>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={pointVsTirData} margin={{ bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" style={{ fontSize: '10px', fontWeight: 'bold' }} />
-                <YAxis domain={[0, 100]} style={{ fontSize: '10px' }} />
-                <Tooltip
-                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                />
-                <Legend iconType="circle" />
-                <Bar dataKey="POINT" fill={COLORS.POINT} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="TIR" fill={COLORS.TIR} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+            {/* POINT vs TIR Chart */}
+            <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+            >
+                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Eficacia Point vs Tir</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={pointVsTirData} margin={{ bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', fill: '#64748b' }} />
+                        <YAxis domain={[0, 100]} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: 'bold', fill: '#cbd5e1' }} />
+                        <Tooltip
+                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: '900' }}
+                        />
+                        <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontWeight: '900', fontSize: '10px', textTransform: 'uppercase' }} />
+                        <Bar dataKey="POINT" fill={COLORS.POINT} radius={[10, 10, 0, 0]} barSize={30} />
+                        <Bar dataKey="TIR" fill={COLORS.TIR} radius={[10, 10, 0, 0]} barSize={30} />
+                    </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </motion.div>
 
-        {/* Evolution Chart */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-          <h4 className="text-xs font-bold text-slate-400 uppercase mb-6">Evolución por Mano (% de efectividad)</h4>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart margin={{ right: 30, left: -20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="hand" type="number" domain={['dataMin', 'dataMax']} style={{ fontSize: '10px' }} label={{ value: 'Mano', position: 'insideBottom', offset: -10 }} />
-                <YAxis domain={[0, 100]} style={{ fontSize: '10px' }} />
-                <Tooltip
-                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                />
-                <Legend />
-                <Line
-                    data={evolutionA}
-                    type="monotone"
-                    dataKey="performance"
-                    name={match.teamAName}
-                    stroke={COLORS.A}
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: COLORS.A }}
-                />
-                <Line
-                    data={evolutionB}
-                    type="monotone"
-                    dataKey="performance"
-                    name={match.teamBName}
-                    stroke={COLORS.B}
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: COLORS.B }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 flex items-start gap-2 bg-slate-50 p-3 rounded-lg">
-            <Info size={14} className="text-slate-400 mt-0.5" />
-            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                Este gráfico muestra el performance técnico individual de cada equipo en cada mano específica.
-                Ayuda a visualizar rachas de efectividad y bajones técnicos durante la partida.
-            </p>
-          </div>
+            {/* Evolution Chart */}
+            <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+            >
+                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Evolución de Eficacia por Mano</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                    <LineChart margin={{ right: 30, left: -20, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="hand" type="number" domain={['dataMin', 'dataMax']} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: '900', fill: '#64748b' }} />
+                        <YAxis domain={[0, 100]} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: 'bold', fill: '#cbd5e1' }} />
+                        <Tooltip
+                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: '900' }}
+                        />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontWeight: '900', fontSize: '10px', textTransform: 'uppercase' }} />
+                        <Line
+                            data={evolutionA}
+                            type="monotone"
+                            dataKey="performance"
+                            name={match.teamAName}
+                            stroke={COLORS.A}
+                            strokeWidth={4}
+                            dot={{ r: 6, fill: COLORS.A, strokeWidth: 3, stroke: '#fff' }}
+                            activeDot={{ r: 8, strokeWidth: 0 }}
+                        />
+                        <Line
+                            data={evolutionB}
+                            type="monotone"
+                            dataKey="performance"
+                            name={match.teamBName}
+                            stroke={COLORS.B}
+                            strokeWidth={4}
+                            dot={{ r: 6, fill: COLORS.B, strokeWidth: 3, stroke: '#fff' }}
+                            activeDot={{ r: 8, strokeWidth: 0 }}
+                        />
+                    </LineChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className="mt-8 flex items-start gap-4 bg-slate-50 p-6 rounded-[2rem] border border-slate-100/50">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                        <Info size={20} />
+                    </div>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                        Este análisis técnico avanzado muestra la consistencia de cada equipo. Las fluctuaciones indican periodos de fatiga o presión técnica durante el encuentro.
+                    </p>
+                </div>
+            </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
