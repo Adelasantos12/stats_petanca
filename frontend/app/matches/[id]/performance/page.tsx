@@ -12,7 +12,8 @@ import {
   Info,
   Medal,
   Activity,
-  Award
+  Award,
+  BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -96,12 +97,12 @@ export default function Performance() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       className="space-y-10 pb-20"
     >
       <div className="flex items-center gap-4">
-        <Link href={`/matches/${id}`} className="p-3 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all active:scale-90">
+        <Link href={`/matches/${id}`} className="glass p-4 rounded-[1.5rem] shadow-sm hover:shadow-lg transition-all active:scale-90 flex items-center justify-center">
           <ChevronLeft size={24} className="text-slate-600" />
         </Link>
         <div>
@@ -111,17 +112,18 @@ export default function Performance() {
       </div>
 
       {/* Team Summaries */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4 md:gap-8">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200 relative overflow-hidden"
+          whileHover={{ scale: 1.02 }}
+          className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200/50 relative overflow-hidden"
         >
           <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
             <Medal size={120} />
           </div>
           <div className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em] mb-2">{match.teamAName}</div>
-          <div className="text-5xl font-black text-white">{performance.teams.A.performance || '0'}%</div>
+          <div className="text-4xl md:text-6xl font-black text-white">{performance.teams.A.performance || '0'}%</div>
           <div className="text-[10px] text-indigo-100 font-black mt-3 flex items-center gap-1">
              <Activity size={12} /> GLOBAL EQUIPO
           </div>
@@ -130,14 +132,15 @@ export default function Performance() {
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.02 }}
           transition={{ delay: 0.1 }}
-          className="bg-rose-600 p-8 rounded-[2.5rem] shadow-2xl shadow-rose-200 relative overflow-hidden"
+          className="bg-rose-600 p-8 rounded-[2.5rem] shadow-2xl shadow-rose-200/50 relative overflow-hidden"
         >
           <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
             <Medal size={120} />
           </div>
           <div className="text-[10px] font-black text-rose-200 uppercase tracking-[0.2em] mb-2">{match.teamBName}</div>
-          <div className="text-5xl font-black text-white">{performance.teams.B.performance || '0'}%</div>
+          <div className="text-4xl md:text-6xl font-black text-white">{performance.teams.B.performance || '0'}%</div>
           <div className="text-[10px] text-rose-100 font-black mt-3 flex items-center gap-1">
              <Activity size={12} /> GLOBAL EQUIPO
           </div>
@@ -156,7 +159,7 @@ export default function Performance() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * idx }}
-              className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 hover:shadow-2xl transition-all duration-300"
+              className="glass p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-white/50 hover:shadow-2xl transition-all duration-300"
             >
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -171,20 +174,20 @@ export default function Performance() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                <div className="p-4 bg-slate-50 rounded-2xl space-y-1">
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100">
+                <div className="p-4 bg-emerald-50/30 rounded-2xl space-y-1">
                   <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     <Target size={10} className="text-emerald-500" /> Point
                   </div>
                   <div className="text-2xl font-black text-slate-800">{p.point.performance ?? '0'}%</div>
-                  <div className="text-[9px] font-bold text-slate-300 italic">n = {p.point.n}</div>
+                  <div className="text-[9px] font-bold text-slate-400 italic">n = {p.point.n}</div>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-2xl space-y-1">
+                <div className="p-4 bg-amber-50/30 rounded-2xl space-y-1">
                   <div className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     <Zap size={10} className="text-amber-500" /> Tir
                   </div>
                   <div className="text-2xl font-black text-slate-800">{p.tir.performance ?? '0'}%</div>
-                  <div className="text-[9px] font-bold text-slate-300 italic">n = {p.tir.n}</div>
+                  <div className="text-[9px] font-bold text-slate-400 italic">n = {p.tir.n}</div>
                 </div>
               </div>
             </motion.div>
@@ -202,9 +205,9 @@ export default function Performance() {
             {/* Comparison Chart */}
             <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+                className="glass p-8 rounded-[3rem] shadow-xl shadow-slate-200/30 border border-white/50"
             >
-                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Comparativa de Rendimiento Total</h4>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Comparativa de Rendimiento Total</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={playerComparisonData} layout="vertical" margin={{ left: 20 }}>
@@ -229,9 +232,9 @@ export default function Performance() {
             {/* POINT vs TIR Chart */}
             <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+                className="glass p-8 rounded-[3rem] shadow-xl shadow-slate-200/30 border border-white/50"
             >
-                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Eficacia Point vs Tir</h4>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Eficacia Point vs Tir</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={pointVsTirData} margin={{ bottom: 20 }}>
@@ -252,9 +255,9 @@ export default function Performance() {
             {/* Evolution Chart */}
             <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="bg-white p-8 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-50"
+                className="glass p-8 rounded-[3rem] shadow-xl shadow-slate-200/30 border border-white/50"
             >
-                <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">Evolución de Eficacia por Mano</h4>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Evolución de Eficacia por Mano</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                     <LineChart margin={{ right: 30, left: -20, bottom: 20 }}>
@@ -288,11 +291,11 @@ export default function Performance() {
                     </LineChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="mt-8 flex items-start gap-4 bg-slate-50 p-6 rounded-[2rem] border border-slate-100/50">
+                <div className="mt-8 flex items-start gap-4 bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100/50">
                     <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
                         <Info size={20} />
                     </div>
-                    <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                    <p className="text-xs text-indigo-900/60 font-bold leading-relaxed">
                         Este análisis técnico avanzado muestra la consistencia de cada equipo. Las fluctuaciones indican periodos de fatiga o presión técnica durante el encuentro.
                     </p>
                 </div>
