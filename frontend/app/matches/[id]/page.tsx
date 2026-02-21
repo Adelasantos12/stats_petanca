@@ -8,8 +8,6 @@ import {
   ChevronLeft,
   History,
   BarChart2,
-  XCircle,
-  CheckCircle2,
   Save,
   Trash2,
   AlertCircle,
@@ -163,8 +161,6 @@ export default function LiveMatch() {
     return currentHandThrows.filter(t => t.playerId === playerId).length;
   };
 
-  const isWinnerA = scoreA >= match.targetPoints;
-  const isWinnerB = scoreB >= match.targetPoints;
 
   return (
     <div className="flex flex-col gap-6 pb-40">
