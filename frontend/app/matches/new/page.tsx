@@ -38,9 +38,20 @@ export default function NewMatch() {
         playersB: playersB.filter(p => p.trim() !== ''),
       });
       router.push(`/matches/${res.data.id}`);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      alert('Error al crear la partida');
+      const message =
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { message?: string | string[] } } }).response?.data?.message !==
+          'undefined'
+          ? (Array.isArray((err as { response?: { data?: { message?: string | string[] } } }).response?.data?.message)
+              ? (err as { response?: { data?: { message?: string[] } } }).response?.data?.message?.join(', ')
+              : (err as { response?: { data?: { message?: string } } }).response?.data?.message)
+          : 'Error al crear la partida';
+
+      alert(message || 'Error al crear la partida');
       setLoading(false);
     }
   };
