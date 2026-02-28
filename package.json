@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "axios": "^1.13.5"
+  },
+  "scripts": {
+    "smoke:simulate": "node scripts/simulate-match.mjs"
   }
 }
