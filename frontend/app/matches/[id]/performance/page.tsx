@@ -67,24 +67,7 @@ export default function Performance() {
     name: p.playerName,
     POINT: p.point.performance || 0,
     TIR: p.tir.performance || 0,
-    n_point: p.point.n || 0,
-    n_tir: p.tir.n || 0,
   }));
-
-  const calculatePlayerEvolution = (playerId: string) => {
-    const hands = match.hands.filter(h => h.status === 'NORMAL').map(h => h.handNumber).sort((a,b) => a - b);
-    return hands.map(hNum => {
-      const handThrows = match.throws.filter(t => t.handNumber === hNum && t.playerId === playerId);
-      const n = handThrows.length;
-      if (n === 0) return { hand: hNum, performance: null }; // Use null to break the line if no throws
-      const suma = handThrows.reduce((acc, t) => acc + t.effectivenessScore, 0);
-      const perf = ((suma + 2 * n) / (4 * n)) * 100;
-      return {
-        hand: hNum,
-        performance: parseFloat(perf.toFixed(1)),
-      };
-    });
-  };
 
   const calculateEvolution = (side: 'A' | 'B') => {
     const hands = match.hands.filter(h => h.status === 'NORMAL').map(h => h.handNumber).sort((a,b) => a - b);
@@ -110,15 +93,6 @@ export default function Performance() {
     POINT: '#10b981', // Emerald
     TIR: '#f59e0b', // Amber
   };
-
-  const PLAYER_COLORS = [
-    '#3b82f6', // blue-500
-    '#10b981', // emerald-500
-    '#f59e0b', // amber-500
-    '#ec4899', // pink-500
-    '#8b5cf6', // violet-500
-    '#06b6d4', // cyan-500
-  ];
 
   return (
     <motion.div
@@ -268,80 +242,11 @@ export default function Performance() {
                         <YAxis domain={[0, 100]} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: 'bold', fill: '#cbd5e1' }} />
                         <Tooltip
                             contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: '900' }}
-                            formatter={(value, name, props) => {
-                              const data = props.payload;
-                              if (name === 'POINT') return [`${value}% (n=${data.n_point})`, 'POINT'];
-                              if (name === 'TIR') return [`${value}% (n=${data.n_tir})`, 'TIR'];
-                              return [value, name];
-                            }}
                         />
                         <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontWeight: '900', fontSize: '10px', textTransform: 'uppercase' }} />
                         <Bar dataKey="POINT" fill={COLORS.POINT} radius={[10, 10, 0, 0]} barSize={30} />
                         <Bar dataKey="TIR" fill={COLORS.TIR} radius={[10, 10, 0, 0]} barSize={30} />
                     </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </motion.div>
-
-            {/* Player Evolution Chart */}
-            <motion.div
-                whileHover={{ scale: 1.01 }}
-                className="glass p-8 rounded-[3rem] shadow-xl shadow-slate-200/30 border border-white/50"
-            >
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Evolución por Mano (Jugadores)</h4>
-                
-                <div className="flex gap-4 mb-4">
-                  <div className="flex-1">
-                    <h5 className="text-[10px] font-bold text-slate-500 uppercase mb-2">{match.teamAName}</h5>
-                    <div className="flex gap-2 flex-wrap">
-                      {playerEvolutions.filter(p => p.teamSide === 'A').map((p, idx) => (
-                        <div key={p.playerId} className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLAYER_COLORS[idx % PLAYER_COLORS.length] }}></div>
-                          <span className="text-xs text-slate-600 font-bold">{p.playerName}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="text-[10px] font-bold text-slate-500 uppercase mb-2">{match.teamBName}</h5>
-                    <div className="flex gap-2 flex-wrap">
-                      {playerEvolutions.filter(p => p.teamSide === 'B').map((p, idx) => {
-                         const colorIdx = playerEvolutions.findIndex(pe => pe.playerId === p.playerId);
-                         return (
-                          <div key={p.playerId} className="flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PLAYER_COLORS[colorIdx % PLAYER_COLORS.length] }}></div>
-                            <span className="text-xs text-slate-600 font-bold">{p.playerName}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-72 w-full mb-8">
-                    <ResponsiveContainer width="100%" height="100%">
-                    <LineChart margin={{ right: 30, left: -20, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="hand" type="number" domain={['dataMin', 'dataMax']} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: '900', fill: '#64748b' }} />
-                        <YAxis domain={[0, 100]} axisLine={false} tickLine={false} style={{ fontSize: '10px', fontWeight: 'bold', fill: '#cbd5e1' }} />
-                        <Tooltip
-                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: '900' }}
-                            formatter={(value, name) => [`${value}%`, name]}
-                        />
-                        {playerEvolutions.map((p, idx) => (
-                          <Line
-                              key={p.playerId}
-                              data={p.data}
-                              type="monotone"
-                              dataKey="performance"
-                              name={p.playerName}
-                              stroke={PLAYER_COLORS[idx % PLAYER_COLORS.length]}
-                              strokeWidth={3}
-                              dot={{ r: 4, fill: PLAYER_COLORS[idx % PLAYER_COLORS.length], strokeWidth: 2, stroke: '#fff' }}
-                              activeDot={{ r: 6, strokeWidth: 0 }}
-                          />
-                        ))}
-                    </LineChart>
                     </ResponsiveContainer>
                 </div>
             </motion.div>
