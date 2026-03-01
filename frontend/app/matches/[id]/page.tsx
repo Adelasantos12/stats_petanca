@@ -11,6 +11,7 @@ import {
   Save,
   Trash2,
   AlertCircle,
+  Undo2,
   Trophy,
   Target,
   Zap,
@@ -179,6 +180,9 @@ export default function LiveMatch() {
 
   const currentHandNumber = match.hands.length + 1;
   const currentHandThrows = match.throws.filter(t => t.handNumber === currentHandNumber);
+  const orderedThrows = [...match.throws].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const lastThrow = orderedThrows[0];
+  const lastHand = [...match.hands].sort((a, b) => b.handNumber - a.handNumber)[0];
 
   const scoreA = match.hands
     .filter(h => h.status === 'NORMAL' && h.pointsTeam === 'A')
@@ -191,6 +195,18 @@ export default function LiveMatch() {
 
   const getBallsUsed = (playerId: string) => {
     return currentHandThrows.filter(t => t.playerId === playerId).length;
+  };
+
+  const handleUndoLastThrow = async () => {
+    if (!lastThrow) return;
+    if (!confirm(`¿Deshacer la última bola de ${lastThrow.player?.name || 'jugador'}?`)) return;
+    try {
+      await api.delete(`/throws/${lastThrow.id}`);
+      fetchMatch();
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo deshacer la última bola');
+    }
   };
 
 
@@ -286,7 +302,7 @@ export default function LiveMatch() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass p-6 rounded-[3rem] shadow-2xl shadow-slate-200/30 border border-white/50 space-y-8"
+            className="glass p-6 rounded-[3rem] shadow-2xl shadow-slate-200/30 border border-white/50 space-y-6"
           >
             {/* Team & Player Selection */}
             <div className="space-y-4">
@@ -311,7 +327,7 @@ export default function LiveMatch() {
                 </button>
               </div>
 
-              <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar px-1">
+              <div className="grid grid-cols-2 gap-3">
                 {match.players
                   .filter(p => p.teamSide === selectedTeam)
                   .map(mp => {
@@ -323,13 +339,13 @@ export default function LiveMatch() {
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedPlayerId(mp.playerId)}
                         className={cn(
-                          "flex-shrink-0 px-6 py-5 rounded-[2.2rem] border-2 transition-all flex flex-col items-center min-w-[110px]",
+                          "px-4 py-4 rounded-[1.5rem] border-2 transition-all flex flex-col items-center",
                           isSelected
                             ? (selectedTeam === 'A' ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
                             : "border-transparent bg-slate-50 text-slate-400"
                         )}
                       >
-                        <span className="text-[10px] font-black truncate w-24 text-center uppercase tracking-tight mb-3">{mp.player.name}</span>
+                        <span className="text-[10px] font-black truncate w-full text-center uppercase tracking-tight mb-2">{mp.player.name}</span>
                         <div className="flex gap-1.5">
                             {[...Array(ballsPerPlayer)].map((_, i) => (
                                 <div key={i} className={cn(
@@ -395,28 +411,48 @@ export default function LiveMatch() {
               })}
             </div>
 
-            <div className="flex gap-3">
-                <div className="flex-1 bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
-                    <span className="text-[10px] font-black text-slate-300 uppercase italic">Dist</span>
-                    <input
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={distance}
-                        onChange={(e) => setDistance(e.target.value)}
-                        className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
-                    />
-                </div>
-                <div className="flex-[1.5] bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
-                    <span className="text-[10px] font-black text-slate-300 uppercase italic">Nota</span>
-                    <input
-                        type="text"
-                        placeholder="..."
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
-                    />
-                </div>
+            <details className="bg-slate-50/70 rounded-[1.5rem] p-4 border border-slate-100">
+              <summary className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-slate-500">Opcionales (distancia / nota)</summary>
+              <div className="flex gap-3 mt-3">
+                  <div className="flex-1 bg-white rounded-2xl p-3 flex items-center gap-2 border border-transparent focus-within:border-indigo-300 transition-all">
+                      <span className="text-[10px] font-black text-slate-300 uppercase italic">Dist</span>
+                      <input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={distance}
+                          onChange={(e) => setDistance(e.target.value)}
+                          className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
+                      />
+                  </div>
+                  <div className="flex-[1.5] bg-white rounded-2xl p-3 flex items-center gap-2 border border-transparent focus-within:border-indigo-300 transition-all">
+                      <span className="text-[10px] font-black text-slate-300 uppercase italic">Nota</span>
+                      <input
+                          type="text"
+                          placeholder="..."
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                          className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
+                      />
+                  </div>
+              </div>
+            </details>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={handleUndoLastThrow}
+                disabled={!lastThrow}
+                className="bg-rose-50 text-rose-600 disabled:text-slate-300 disabled:bg-slate-100 rounded-[1.3rem] p-3 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <Undo2 size={14} /> Deshacer última bola
+              </button>
+              <button
+                onClick={handleCancelHand}
+                disabled={!lastHand || lastHand.status === 'CANCELED'}
+                className="bg-amber-50 text-amber-700 disabled:text-slate-300 disabled:bg-slate-100 rounded-[1.3rem] p-3 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <RotateCcw size={14} /> Rehacer último puntaje
+              </button>
             </div>
           </motion.div>
 
@@ -440,14 +476,7 @@ export default function LiveMatch() {
             </motion.button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={handleCancelHand}
-              className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-rose-500 transition-all shadow-sm"
-            >
-              <RotateCcw size={24} />
-              Anular Mano
-            </button>
+          <div className="grid grid-cols-1 gap-4">
             <button
               onClick={() => setFinishingMatch(true)}
               className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-indigo-500 transition-all shadow-sm"

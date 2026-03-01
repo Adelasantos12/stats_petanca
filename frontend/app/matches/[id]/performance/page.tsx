@@ -69,6 +69,37 @@ export default function Performance() {
     TIR: p.tir.performance || 0,
   }));
 
+  const calculatePlayerTrend = (playerId: string) => {
+    const playerThrows = match.throws
+      .filter(t => t.playerId === playerId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    if (playerThrows.length === 0) {
+      return { start: null, end: null, delta: null, stability: null, trendLabel: 'Sin datos' };
+    }
+
+    const scores = playerThrows.map(t => t.effectivenessScore);
+    const firstWindow = scores.slice(0, Math.min(3, scores.length));
+    const lastWindow = scores.slice(Math.max(scores.length - 3, 0));
+    const start = firstWindow.reduce((acc, value) => acc + value, 0) / firstWindow.length;
+    const end = lastWindow.reduce((acc, value) => acc + value, 0) / lastWindow.length;
+    const delta = end - start;
+    const average = scores.reduce((acc, value) => acc + value, 0) / scores.length;
+    const variance = scores.reduce((acc, value) => acc + (value - average) ** 2, 0) / scores.length;
+    const stability = Math.sqrt(variance);
+
+    let trendLabel = 'Estable';
+    if (delta >= 0.6) trendLabel = 'Sube';
+    if (delta <= -0.6) trendLabel = 'Baja';
+
+    return { start, end, delta, stability, trendLabel };
+  };
+
+  const playerDecisionData = performance.players.map(player => ({
+    ...player,
+    trend: calculatePlayerTrend(player.playerId),
+  }));
+
   const calculateEvolution = (side: 'A' | 'B') => {
     const hands = match.hands.filter(h => h.status === 'NORMAL').map(h => h.handNumber).sort((a,b) => a - b);
     return hands.map(hNum => {
@@ -152,7 +183,7 @@ export default function Performance() {
             <Award size={24} className="text-indigo-600" /> Rendimiento Individual
         </h3>
         <div className="grid md:grid-cols-2 gap-6">
-          {performance.players.map((p, idx) => (
+          {playerDecisionData.map((p, idx) => (
             <motion.div
               key={p.playerId}
               initial={{ opacity: 0, y: 20 }}
@@ -188,6 +219,42 @@ export default function Performance() {
                   <div className="text-2xl font-black text-slate-800">{p.tir.performance ?? '0'}%</div>
                   <div className="text-[9px] font-bold text-slate-400 italic">n = {p.tir.n}</div>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="bg-slate-50 rounded-2xl p-3">
+                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inicio</div>
+                  <div className="text-lg font-black text-slate-700">{p.trend.start?.toFixed(1) ?? '-'}</div>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-3">
+                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Final</div>
+                  <div className="text-lg font-black text-slate-700">{p.trend.end?.toFixed(1) ?? '-'}</div>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-3">
+                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Delta</div>
+                  <div className={`text-lg font-black ${(p.trend.delta ?? 0) > 0 ? 'text-emerald-600' : (p.trend.delta ?? 0) < 0 ? 'text-rose-600' : 'text-slate-700'}`}>
+                    {p.trend.delta !== null ? `${p.trend.delta > 0 ? '+' : ''}${p.trend.delta.toFixed(1)}` : '-'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                  <span className="text-slate-500">Lectura coach</span>
+                  <span className={p.trend.trendLabel === 'Sube' ? 'text-emerald-600' : p.trend.trendLabel === 'Baja' ? 'text-rose-600' : 'text-slate-500'}>
+                    {p.trend.trendLabel}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs font-bold text-slate-600 leading-relaxed">
+                  {p.trend.trendLabel === 'Sube'
+                    ? 'Jugador en mejora. Mantener en situaciones de bola clave puede ser favorable.'
+                    : p.trend.trendLabel === 'Baja'
+                    ? 'Jugador en descenso. Evaluar cambio de rol o relevo en tramos de presión.'
+                    : 'Jugador consistente. Perfil estable para sostener ritmo durante el partido.'}
+                </p>
+                <p className="mt-2 text-[11px] font-black text-slate-400">
+                  Estabilidad (desviación): {p.trend.stability?.toFixed(2) ?? '-'}
+                </p>
               </div>
             </motion.div>
           ))}
