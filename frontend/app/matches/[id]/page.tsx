@@ -98,12 +98,9 @@ export default function LiveMatch() {
     fetchMatch();
   }, [fetchMatch]);
 
-  const handleTeamChange = (side: 'A' | 'B') => {
-    setSelectedTeam(side);
-    if (match) {
-      const teamPlayers = match.players.filter(p => p.teamSide === side);
-      if (teamPlayers.length > 0) setSelectedPlayerId(teamPlayers[0].playerId);
-    }
+  const handlePlayerSelect = (playerId: string, teamSide: 'A' | 'B') => {
+    setSelectedTeam(teamSide);
+    setSelectedPlayerId(playerId);
   };
 
   const handleSaveThrow = async () => {
@@ -192,6 +189,9 @@ export default function LiveMatch() {
     .reduce((acc, h) => acc + (h.pointsValue || 0), 0);
 
   const ballsPerPlayer = match.modality === 'SINGLE' ? 3 : match.modality === 'DOUBLES' ? 3 : 2;
+  const teamAPlayers = match.players.filter(p => p.teamSide === 'A');
+  const teamBPlayers = match.players.filter(p => p.teamSide === 'B');
+  const maxPositions = Math.max(teamAPlayers.length, teamBPlayers.length);
 
   const getBallsUsed = (playerId: string) => {
     return currentHandThrows.filter(t => t.playerId === playerId).length;
@@ -304,59 +304,68 @@ export default function LiveMatch() {
             animate={{ opacity: 1, y: 0 }}
             className="glass p-6 rounded-[3rem] shadow-2xl shadow-slate-200/30 border border-white/50 space-y-6"
           >
-            {/* Team & Player Selection */}
+            {/* Unified Team & Player Board */}
             <div className="space-y-4">
-              <div className="flex p-1.5 bg-slate-100/50 rounded-[1.8rem] gap-1">
-                <button
-                  onClick={() => handleTeamChange('A')}
-                  className={cn(
-                    "flex-1 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all",
-                    selectedTeam === 'A' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"
-                  )}
-                >
-                  {match.teamAName}
-                </button>
-                <button
-                  onClick={() => handleTeamChange('B')}
-                  className={cn(
-                    "flex-1 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all",
-                    selectedTeam === 'B' ? "bg-white text-rose-600 shadow-sm" : "text-slate-400"
-                  )}
-                >
-                  {match.teamBName}
-                </button>
-              </div>
+              <div className="rounded-[1.8rem] border border-slate-200/80 bg-white/80 p-3">
+                <div className="grid grid-cols-[auto_1fr_1fr] gap-2 mb-2 px-1">
+                  <div />
+                  <div className="text-center text-[10px] font-black uppercase tracking-widest text-indigo-600 truncate">{match.teamAName}</div>
+                  <div className="text-center text-[10px] font-black uppercase tracking-widest text-rose-600 truncate">{match.teamBName}</div>
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {match.players
-                  .filter(p => p.teamSide === selectedTeam)
-                  .map(mp => {
-                    const used = getBallsUsed(mp.playerId);
-                    const isSelected = selectedPlayerId === mp.playerId;
-                    return (
-                      <motion.button
-                        key={mp.playerId}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setSelectedPlayerId(mp.playerId)}
-                        className={cn(
-                          "px-4 py-4 rounded-[1.5rem] border-2 transition-all flex flex-col items-center",
-                          isSelected
-                            ? (selectedTeam === 'A' ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
-                            : "border-transparent bg-slate-50 text-slate-400"
-                        )}
-                      >
-                        <span className="text-[10px] font-black truncate w-full text-center uppercase tracking-tight mb-2">{mp.player.name}</span>
-                        <div className="flex gap-1.5">
+                <div className="space-y-2">
+                  {Array.from({ length: maxPositions }).map((_, positionIndex) => {
+                    const playerA = teamAPlayers[positionIndex];
+                    const playerB = teamBPlayers[positionIndex];
+
+                    const renderPlayerCard = (mp: typeof playerA, teamSide: 'A' | 'B') => {
+                      if (!mp) {
+                        return <div className="h-[76px] rounded-[1.3rem] bg-slate-50/80 border border-dashed border-slate-200" />;
+                      }
+
+                      const used = getBallsUsed(mp.playerId);
+                      const isSelected = selectedPlayerId === mp.playerId;
+                      const isTeamA = teamSide === 'A';
+
+                      return (
+                        <motion.button
+                          key={mp.playerId}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handlePlayerSelect(mp.playerId, teamSide)}
+                          className={cn(
+                            "w-full px-3 py-3 rounded-[1.3rem] border-2 transition-all flex flex-col items-center justify-center",
+                            isSelected
+                              ? (isTeamA ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
+                              : "border-transparent bg-slate-50 text-slate-500"
+                          )}
+                        >
+                          <span className="text-[10px] font-black truncate w-full text-center uppercase tracking-tight mb-2">{mp.player.name}</span>
+                          <div className="flex gap-1.5">
                             {[...Array(ballsPerPlayer)].map((_, i) => (
-                                <div key={i} className={cn(
-                                    "w-2 h-2 rounded-full",
-                                    i < used ? (selectedTeam === 'A' ? "bg-indigo-600" : "bg-rose-600") : "bg-slate-200"
-                                )} />
+                              <div
+                                key={i}
+                                className={cn(
+                                  "w-2 h-2 rounded-full",
+                                  i < used ? (isTeamA ? "bg-indigo-600" : "bg-rose-600") : "bg-slate-200"
+                                )}
+                              />
                             ))}
+                          </div>
+                        </motion.button>
+                      );
+                    };
+
+                    return (
+                      <div key={positionIndex} className="grid grid-cols-[auto_1fr_1fr] gap-2 items-stretch">
+                        <div className="w-10 flex items-center justify-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                          P{positionIndex + 1}
                         </div>
-                      </motion.button>
+                        {renderPlayerCard(playerA, 'A')}
+                        {renderPlayerCard(playerB, 'B')}
+                      </div>
                     );
                   })}
+                </div>
               </div>
             </div>
 
