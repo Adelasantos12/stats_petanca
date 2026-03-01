@@ -191,6 +191,17 @@ export default function LiveMatch() {
   const ballsPerPlayer = match.modality === 'SINGLE' ? 3 : match.modality === 'DOUBLES' ? 3 : 2;
   const teamAPlayers = match.players.filter(p => p.teamSide === 'A');
   const teamBPlayers = match.players.filter(p => p.teamSide === 'B');
+  const slotLabels = ['P', 'M', 'T'];
+
+  const getPlayersBySlot = (players: typeof teamAPlayers) => {
+    if (players.length >= 3) return [players[0], players[1], players[2]];
+    if (players.length === 2) return [players[0], null, players[1]];
+    if (players.length === 1) return [players[0], null, null];
+    return [null, null, null];
+  };
+
+  const teamASlots = getPlayersBySlot(teamAPlayers);
+  const teamBSlots = getPlayersBySlot(teamBPlayers);
 
   const getBallsUsed = (playerId: string) => {
     return currentHandThrows.filter(t => t.playerId === playerId).length;
@@ -303,65 +314,120 @@ export default function LiveMatch() {
             animate={{ opacity: 1, y: 0 }}
             className="glass p-6 rounded-[3rem] shadow-2xl shadow-slate-200/30 border border-white/50 space-y-6"
           >
-            {/* Team boards: desktop side-by-side, mobile stacked */}
+            {/* Team boards optimized for mobile */}
             <div className="space-y-3">
               <div className="text-center text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
-                1 toque: toca el jugador y luego guarda
+                1) toca jugador · 2) elige nota · 3) guarda
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="md:hidden rounded-[1.8rem] border border-slate-200 bg-white/90 p-3 space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-orange-500 truncate">{match.teamAName}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-sky-500 truncate">{match.teamBName}</div>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 items-center">
+                  {slotLabels.map((slot) => (
+                    <div key={`left-${slot}`} className="text-center text-[9px] font-black text-orange-400">{slot}</div>
+                  ))}
+                  <div className="text-center text-[9px] font-black text-emerald-500">OK</div>
+                  {slotLabels.map((slot) => (
+                    <div key={`right-${slot}`} className="text-center text-[9px] font-black text-sky-400">{slot}</div>
+                  ))}
+
+                  {teamASlots.map((mp, slotIndex) => {
+                    const isSelected = selectedPlayerId === mp?.playerId;
+                    const used = mp ? getBallsUsed(mp.playerId) : 0;
+                    return mp ? (
+                      <button
+                        key={mp.playerId}
+                        onClick={() => handlePlayerSelect(mp.playerId, 'A')}
+                        className={cn(
+                          'h-16 rounded-2xl border-2 flex flex-col items-center justify-center transition-all',
+                          isSelected ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-md shadow-orange-100' : 'border-transparent bg-slate-50 text-slate-500'
+                        )}
+                      >
+                        <span className="text-[9px] font-black truncate max-w-[90%]">{mp.player.name}</span>
+                        <div className="flex gap-1 mt-1">{[...Array(ballsPerPlayer)].map((_, i) => <span key={i} className={cn('w-1.5 h-1.5 rounded-full', i < used ? 'bg-orange-500' : 'bg-slate-200')} />)}</div>
+                      </button>
+                    ) : (
+                      <div key={`empty-a-${slotIndex}`} className="h-16 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70" />
+                    );
+                  })}
+
+                  <div className="h-16 rounded-2xl border-2 border-emerald-400 bg-emerald-50 flex items-center justify-center px-1">
+                    <span className="text-[9px] font-black text-emerald-700 text-center leading-tight truncate">{match.players.find(p => p.playerId === selectedPlayerId)?.player.name || 'elige'}</span>
+                  </div>
+
+                  {teamBSlots.map((mp, slotIndex) => {
+                    const isSelected = selectedPlayerId === mp?.playerId;
+                    const used = mp ? getBallsUsed(mp.playerId) : 0;
+                    return mp ? (
+                      <button
+                        key={mp.playerId}
+                        onClick={() => handlePlayerSelect(mp.playerId, 'B')}
+                        className={cn(
+                          'h-16 rounded-2xl border-2 flex flex-col items-center justify-center transition-all',
+                          isSelected ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-md shadow-sky-100' : 'border-transparent bg-slate-50 text-slate-500'
+                        )}
+                      >
+                        <span className="text-[9px] font-black truncate max-w-[90%]">{mp.player.name}</span>
+                        <div className="flex gap-1 mt-1">{[...Array(ballsPerPlayer)].map((_, i) => <span key={i} className={cn('w-1.5 h-1.5 rounded-full', i < used ? 'bg-sky-500' : 'bg-slate-200')} />)}</div>
+                      </button>
+                    ) : (
+                      <div key={`empty-b-${slotIndex}`} className="h-16 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70" />
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="hidden md:grid md:grid-cols-2 gap-3">
                 {[
-                  { teamSide: 'A' as const, teamName: match.teamAName, players: teamAPlayers, color: 'indigo' as const },
-                  { teamSide: 'B' as const, teamName: match.teamBName, players: teamBPlayers, color: 'rose' as const },
+                  { teamSide: 'A' as const, teamName: match.teamAName, players: teamAPlayers },
+                  { teamSide: 'B' as const, teamName: match.teamBName, players: teamBPlayers },
                 ].map((teamBoard) => (
                   <div
                     key={teamBoard.teamSide}
                     className={cn(
                       'rounded-[1.8rem] border p-3 bg-white/80',
-                      teamBoard.teamSide === 'A' ? 'border-indigo-100' : 'border-rose-100'
+                      teamBoard.teamSide === 'A' ? 'border-orange-100' : 'border-sky-100'
                     )}
                   >
                     <div className={cn(
                       'text-center text-[11px] font-black uppercase tracking-widest mb-2',
-                      teamBoard.teamSide === 'A' ? 'text-indigo-600' : 'text-rose-600'
+                      teamBoard.teamSide === 'A' ? 'text-orange-600' : 'text-sky-600'
                     )}>
                       {teamBoard.teamName}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {teamBoard.players.map((mp, index) => {
+                    <div className="grid grid-cols-3 gap-2">
+                      {slotLabels.map((slot, index) => {
+                        const mp = getPlayersBySlot(teamBoard.players)[index];
+                        if (!mp) {
+                          return <div key={`${teamBoard.teamSide}-${slot}-empty`} className="h-[78px] rounded-[1.3rem] bg-slate-50 border border-dashed border-slate-200" />;
+                        }
                         const used = getBallsUsed(mp.playerId);
                         const isSelected = selectedPlayerId === mp.playerId;
                         const isTeamA = teamBoard.teamSide === 'A';
-
                         return (
-                          <motion.button
+                          <button
                             key={mp.playerId}
-                            whileTap={{ scale: 0.95 }}
                             onClick={() => handlePlayerSelect(mp.playerId, teamBoard.teamSide)}
                             className={cn(
-                              'w-full px-3 py-3 rounded-[1.3rem] border-2 transition-all flex flex-col items-center justify-center min-h-[78px]',
+                              'w-full px-2 py-3 rounded-[1.3rem] border-2 transition-all flex flex-col items-center justify-center min-h-[78px]',
                               isSelected
-                                ? (isTeamA
-                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100'
-                                    : 'border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100')
+                                ? (isTeamA ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-lg shadow-orange-100' : 'border-sky-500 bg-sky-50 text-sky-700 shadow-lg shadow-sky-100')
                                 : 'border-transparent bg-slate-50 text-slate-600'
                             )}
                           >
-                            <span className="text-[10px] font-black uppercase text-slate-400 mb-1">P{index + 1}</span>
+                            <span className="text-[10px] font-black uppercase text-slate-400 mb-1">{slot}</span>
                             <span className="text-[11px] font-black truncate w-full text-center uppercase tracking-tight mb-2">{mp.player.name}</span>
                             <div className="flex gap-1.5">
                               {[...Array(ballsPerPlayer)].map((_, i) => (
-                                <div
-                                  key={i}
-                                  className={cn(
-                                    'w-2.5 h-2.5 rounded-full',
-                                    i < used ? (isTeamA ? 'bg-indigo-600' : 'bg-rose-600') : 'bg-slate-200'
-                                  )}
-                                />
+                                <div key={i} className={cn('w-2.5 h-2.5 rounded-full', i < used ? (isTeamA ? 'bg-orange-500' : 'bg-sky-500') : 'bg-slate-200')} />
                               ))}
                             </div>
-                          </motion.button>
+                          </button>
                         );
                       })}
                     </div>
