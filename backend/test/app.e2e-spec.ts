@@ -10,16 +10,26 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+    .overrideProvider(require('../src/prisma/prisma.service').PrismaService)
+    .useValue({
+      onModuleInit: jest.fn(),
+      $connect: jest.fn(),
+      $disconnect: jest.fn(),
+      $queryRaw: jest.fn().mockResolvedValue([{ 1: 1 }]),
+    })
+    .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/health (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect((res) => {
+        if (res.body.status !== 'ok') throw new Error('not ok');
+      });
   });
 });

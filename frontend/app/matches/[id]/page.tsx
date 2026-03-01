@@ -44,6 +44,38 @@ export default function LiveMatch() {
   const [closingHand, setClosingHand] = useState(false);
   const [finishingMatch, setFinishingMatch] = useState(false);
 
+  // Quick edit throw state
+  const [editingThrow, setEditingThrow] = useState<{id: string, teamSide: string, effectivenessScore: number, throwType: 'POINT'|'TIR', playerId: string, distanceD?: number} | null>(null);
+  const [editEffectiveness, setEditEffectiveness] = useState<number>(0);
+  const [editThrowType, setEditThrowType] = useState<'POINT' | 'TIR'>('POINT');
+  const [editPlayerId, setEditPlayerId] = useState<string>('');
+  const [editDistance, setEditDistance] = useState<string>('');
+
+  const handleUpdateThrow = async () => {
+    if (!editingThrow) return;
+    try {
+      await api.patch(`/throws/${editingThrow.id}`, {
+        effectivenessScore: editEffectiveness,
+        throwType: editThrowType,
+        playerId: editPlayerId,
+        distanceD: editDistance ? parseFloat(editDistance) : null,
+      });
+      setEditingThrow(null);
+      fetchMatch();
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar lanzamiento');
+    }
+  };
+
+  const openEditThrow = (t: {id: string, teamSide: string, effectivenessScore: number, throwType: 'POINT'|'TIR', playerId: string, distanceD?: number}) => {
+    setEditingThrow(t);
+    setEditEffectiveness(t.effectivenessScore);
+    setEditThrowType(t.throwType);
+    setEditPlayerId(t.playerId);
+    setEditDistance(t.distanceD ? t.distanceD.toString() : '');
+  };
+
   const fetchMatch = useCallback(async () => {
     try {
       const res = await api.get(`/matches/${id}`);
@@ -474,7 +506,7 @@ export default function LiveMatch() {
                         </div>
                         <div className="divide-y divide-white/20">
                         {hThrows.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(t => (
-                            <div key={t.id} className="p-5 flex items-center justify-between gap-4">
+                            <div key={t.id} className="p-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openEditThrow(t)}>
                             <div className="flex items-center gap-4 flex-1 overflow-hidden">
                                 <div className={cn(
                                 "w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shadow-sm",
@@ -493,7 +525,7 @@ export default function LiveMatch() {
                                 </div>
                             </div>
                             <button
-                                onClick={() => handleDeleteThrow(t.id)}
+                                onClick={(e) => { e.stopPropagation(); handleDeleteThrow(t.id); }}
                                 className="w-10 h-10 flex items-center justify-center text-slate-200 hover:text-rose-500 transition-colors active:scale-90"
                             >
                                 <Trash2 size={18} />
@@ -510,6 +542,117 @@ export default function LiveMatch() {
       </div>
 
       {/* Modals */}
+      <AnimatePresence>
+        {editingThrow && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4">
+            <motion.div
+                initial={{ y: 200, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 200, opacity: 0 }}
+                className="bg-white w-full max-w-md rounded-[3.5rem] p-10 space-y-8 shadow-2xl overflow-y-auto max-h-[90vh]"
+            >
+                <div className="text-center">
+                    <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Editar Bola</h3>
+                </div>
+
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Jugador</span>
+                        <div className="grid grid-cols-2 gap-2">
+                            {match.players.filter(p => p.teamSide === editingThrow.teamSide).map(p => (
+                                <button
+                                    key={p.playerId}
+                                    onClick={() => setEditPlayerId(p.playerId)}
+                                    className={cn(
+                                        "py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest border-2 transition-all",
+                                        editPlayerId === p.playerId ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-slate-100 text-slate-400"
+                                    )}
+                                >
+                                    {p.player.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Tipo</span>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                onClick={() => setEditThrowType('POINT')}
+                                className={cn(
+                                    "py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest border-2 transition-all",
+                                    editThrowType === 'POINT' ? "border-slate-900 bg-slate-900 text-white" : "border-slate-100 text-slate-400"
+                                )}
+                            >
+                                POINT
+                            </button>
+                            <button
+                                onClick={() => setEditThrowType('TIR')}
+                                className={cn(
+                                    "py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest border-2 transition-all",
+                                    editThrowType === 'TIR' ? "border-slate-900 bg-slate-900 text-white" : "border-slate-100 text-slate-400"
+                                )}
+                            >
+                                TIR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Eficacia</span>
+                        <div className="grid grid-cols-5 gap-2">
+                            {[-2, -1, 0, 1, 2].map(score => {
+                                const isSelected = editEffectiveness === score;
+                                return (
+                                <button
+                                    key={score}
+                                    onClick={() => setEditEffectiveness(score)}
+                                    className={cn(
+                                    "h-14 rounded-2xl text-lg font-black transition-all flex items-center justify-center border-2",
+                                    isSelected
+                                        ? (score > 0 ? "bg-emerald-500 text-white border-emerald-500" : score < 0 ? "bg-rose-500 text-white border-rose-500" : "bg-slate-800 text-white border-slate-800")
+                                        : "bg-slate-50 text-slate-400 border-transparent"
+                                    )}
+                                >
+                                    {score > 0 ? `+${score}` : score}
+                                </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Distancia (Opcional)</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={editDistance}
+                            onChange={(e) => setEditDistance(e.target.value)}
+                            className="w-full bg-slate-50 rounded-[1.5rem] p-4 text-sm font-bold text-slate-700 outline-none border-2 border-transparent focus:border-indigo-400 transition-all"
+                            placeholder="0.00"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => setEditingThrow(null)}
+                        className="flex-1 py-4 text-slate-400 font-black uppercase tracking-widest text-xs hover:text-slate-600 transition-colors"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={handleUpdateThrow}
+                        className="flex-[2] bg-indigo-600 text-white py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-95 transition-all"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {closingHand && (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4">
