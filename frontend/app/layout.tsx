@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const appFont = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-app",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "PetancaPro | Stats & Analytics",
@@ -25,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.className} min-h-screen antialiased`}>
+      <body className={`${appFont.className} min-h-screen antialiased`}>
         <header className="glass sticky top-0 z-50 py-4 px-6 mb-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-2">
