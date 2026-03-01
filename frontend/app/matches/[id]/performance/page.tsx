@@ -151,7 +151,6 @@ export default function Performance() {
             <Award size={24} className="text-indigo-600" /> Rendimiento Individual
         </h3>
         <div className="grid md:grid-cols-2 gap-6">
-          {performance.players.map((p, idx) => (
           {playerDecisionData.map((p, idx) => (
             <motion.div
               key={p.playerId}
