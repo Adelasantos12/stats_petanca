@@ -11,6 +11,7 @@ import { PlayerAuthModule } from './player-auth/player-auth.module';
 import { TrainingModule } from './training/training.module';
 import { MerciModule } from './merci/merci.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
+import { GamificationModule } from './gamification/gamification.module';
 import { HealthController } from './health/health.controller';
 import { HealthService } from './health/health.service';
 
@@ -26,6 +27,7 @@ import { HealthService } from './health/health.service';
     TrainingModule,
     MerciModule,
     TournamentsModule,
+    GamificationModule,
     MatchesModule,
     ThrowsModule,
   ],

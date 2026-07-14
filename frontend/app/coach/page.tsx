@@ -112,7 +112,7 @@ export default function CoachPage() {
   const remove = async (p: RosterPlayer) => {
     const hasHistory = (p._count?.matches ?? 0) + (p._count?.throws ?? 0) > 0;
     const msg = hasHistory
-      ? `${p.name} tiene partidas registradas. Se quitará de tu roster pero se conservará su historial. ¿Continuar?`
+      ? `¿Eliminar a ${p.name}? Se borrará también su historial (lanzamientos, evaluaciones y planes). Esta acción no se puede deshacer.`
       : `¿Eliminar a ${p.name}?`;
     if (!window.confirm(msg)) return;
     try {

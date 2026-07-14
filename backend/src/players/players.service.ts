@@ -75,22 +75,18 @@ export class PlayersService {
   async remove(id: string, coach: AuthCoach) {
     const player = await this.prisma.player.findUnique({
       where: { id },
-      include: { _count: { select: { matches: true, throws: true } } },
     });
     if (!player) throw new NotFoundException('Jugador no encontrado');
     this.assertAccess(player, coach);
 
-    // No borramos jugadores con historial: los desvinculamos del roster para
-    // no romper partidas ya registradas.
-    if (player._count.matches > 0 || player._count.throws > 0) {
-      await this.prisma.player.update({
-        where: { id },
-        data: { coachId: null },
-      });
-      return { detached: true };
-    }
-
-    await this.prisma.player.delete({ where: { id } });
+    // Borrado total: quita los lanzamientos del jugador y su participación en
+    // partidas; evaluaciones, planes, sesiones y MERCI se eliminan en cascada.
+    // (Las partidas en sí se conservan; solo se retira a este jugador.)
+    await this.prisma.$transaction([
+      this.prisma.throw.deleteMany({ where: { playerId: id } }),
+      this.prisma.matchPlayer.deleteMany({ where: { playerId: id } }),
+      this.prisma.player.delete({ where: { id } }),
+    ]);
     return { deleted: true };
   }
 

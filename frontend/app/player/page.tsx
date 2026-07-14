@@ -12,6 +12,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import MyPlan from './MyPlan';
+import Gamification from './Gamification';
 import MerciRadar, { MerciScores } from '@/components/MerciRadar';
 
 interface Metrics { n: number; performance: number | null; }
@@ -92,6 +93,9 @@ export default function PlayerDashboard() {
           <LogOut size={20} />
         </button>
       </div>
+
+      {/* Estatus, racha e insignias (bucle casual) */}
+      <Gamification />
 
       {/* Rendimiento acumulado */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
