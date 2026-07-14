@@ -54,6 +54,71 @@ model Player {
   matches   MatchPlayer[]
   throws    Throw[]
   evaluations Evaluation[]
+  plans     TrainingPlan[]
+  sessions  TrainingSession[]
+}
+
+// Ejercicio de la biblioteca, etiquetado por dimensión MERCI.
+// M=Motricidad, E=Emociones, R=Relaciones, C=Cinco Sentidos, I=Inteligencia
+model Drill {
+  id           String     @id @default(uuid())
+  title        String
+  dimension    String // M, E, R, C, I
+  description  String?
+  targetMetric String? // "20 bolas de tir a 8m, objetivo ≥60%"
+  coachId      String? // null = ejercicio global (semilla)
+  createdAt    DateTime   @default(now())
+  planItems    PlanItem[]
+}
+
+// Plan de entrenamiento asignado a un jugador por su coach.
+model TrainingPlan {
+  id        String            @id @default(uuid())
+  playerId  String
+  player    Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId   String?
+  name      String
+  focus     String? // dimensión dominante o descripción del bloque
+  status    String            @default("ACTIVE") // ACTIVE, DONE, ARCHIVED
+  createdAt DateTime          @default(now())
+  items     PlanItem[]
+  sessions  TrainingSession[]
+}
+
+model PlanItem {
+  id      String       @id @default(uuid())
+  planId  String
+  plan    TrainingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  drillId String
+  drill   Drill        @relation(fields: [drillId], references: [id])
+  week    Int          @default(1)
+  reps    Int          @default(1)
+  order   Int          @default(0)
+}
+
+// Sesión de entrenamiento registrada por el jugador (autónomo).
+model TrainingSession {
+  id       String          @id @default(uuid())
+  playerId String
+  player   Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  planId   String?
+  plan     TrainingPlan?   @relation(fields: [planId], references: [id])
+  date     DateTime        @default(now())
+  mood     Int? // diario emocional 1-5
+  notes    String?
+  results  SessionResult[]
+}
+
+model SessionResult {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  drillId   String?
+  label     String
+  attempts  Int?
+  successes Int?
+  avgScore  Float? // escala -2..+2
+  done      Boolean         @default(true)
 }
 
 // Nivel dentro del recorrido del jugador (Iniciación → Élite).

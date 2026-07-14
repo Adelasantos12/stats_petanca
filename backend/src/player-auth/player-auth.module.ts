@@ -11,5 +11,6 @@ import { EvaluationsModule } from '../evaluations/evaluations.module';
   imports: [PrismaModule, AuthModule, PlayersModule, EvaluationsModule],
   controllers: [PlayerAuthController],
   providers: [PlayerAuthService, PlayerAuthGuard],
+  exports: [PlayerAuthGuard],
 })
 export class PlayerAuthModule {}

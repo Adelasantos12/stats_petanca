@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import EvaluationSection from './EvaluationSection';
+import PlanSection from './PlanSection';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Target, Zap, Activity, TrendingUp, Award } from 'lucide-react';
 import {
@@ -157,6 +158,9 @@ export default function PlayerDevelopment() {
 
       {/* Evaluación de nivel (rúbricas + promoción) */}
       <EvaluationSection playerId={String(id)} onPromoted={loadDev} />
+
+      {/* Plan de entrenamiento (MERCI) */}
+      <PlanSection playerId={String(id)} />
     </motion.div>
   );
 }

@@ -11,6 +11,7 @@ import {
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
+import MyPlan from './MyPlan';
 
 interface Metrics { n: number; performance: number | null; }
 interface PerMatch { matchId: string; date: string | null; teams: string | null; performance: number | null; n: number; }
@@ -124,6 +125,9 @@ export default function PlayerDashboard() {
           <p className="font-black text-slate-600">¡Estás en el nivel máximo! 🏆</p>
         </div>
       )}
+
+      {/* Mi plan de entrenamiento (MERCI) + registrar sesión */}
+      <MyPlan />
 
       {/* Evolución */}
       <div className="glass rounded-[2rem] p-6 shadow-xl shadow-slate-200/30 border border-white/50">
