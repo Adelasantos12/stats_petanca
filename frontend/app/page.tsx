@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { Match } from '@/types';
-import { PlusCircle, Trophy, Clock, ChevronRight, Activity } from 'lucide-react';
+import { PlusCircle, Trophy, Clock, ChevronRight, Activity, Zap, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -55,6 +55,22 @@ export default function Home() {
           <span className="hidden sm:inline">Nueva Partida</span>
         </Link>
       </div>
+
+      {/* Contador rápido del parque (gancho sin fricción) */}
+      <Link href="/contador"
+        className="block bg-gradient-to-br from-indigo-600 to-violet-600 rounded-[2rem] p-6 shadow-xl shadow-indigo-200/60 text-white relative overflow-hidden active:scale-[0.99] transition-transform">
+        <div className="absolute -right-6 -top-6 opacity-15 rotate-12"><Zap size={130} /></div>
+        <div className="flex items-center justify-between relative">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200">Sin registro · sin conexión</div>
+            <div className="text-2xl font-black mt-1">Contador rápido</div>
+            <div className="text-indigo-100 font-semibold text-sm mt-1 flex items-center gap-1.5">
+              <Share2 size={14} /> Marca y comparte el resultado
+            </div>
+          </div>
+          <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"><ChevronRight size={28} /></div>
+        </div>
+      </Link>
 
       {loading ? (
         <div className="grid gap-6">

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import { Users, Target, Trophy } from "lucide-react";
+import { Users, Target, Trophy, Zap } from "lucide-react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -39,6 +39,13 @@ export default function RootLayout({
               </h1>
             </div>
             <nav className="flex items-center gap-4">
+              <Link
+                href="/contador"
+                className="flex items-center gap-1.5 text-sm font-black text-slate-500 hover:text-indigo-600 transition-colors"
+              >
+                <Zap size={18} />
+                <span className="hidden sm:inline uppercase tracking-wide text-xs">Contador</span>
+              </Link>
               <Link
                 href="/coach"
                 className="flex items-center gap-1.5 text-sm font-black text-slate-500 hover:text-indigo-600 transition-colors"
