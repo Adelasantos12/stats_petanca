@@ -47,6 +47,15 @@ Las manos anuladas se excluyen automáticamente del cálculo.
   en el backend y `NEXT_PUBLIC_GOOGLE_CLIENT_ID` en el frontend (mismo Client ID
   de tipo *Web* de Google Cloud). Si no se configura, el botón se oculta y sigue
   funcionando el login por email/contraseña.
+- **Login del jugador**: en `/player/login` el jugador crea su cuenta con el
+  **mismo email** que el coach registró en el roster (reclama su ficha y conserva
+  su historial) o con Google. En `/player` ve su nivel, su rendimiento acumulado,
+  qué le falta para subir de nivel y su historial de evaluaciones (solo lectura).
+  Los tokens de coach y de jugador están separados: ninguno puede usar los
+  endpoints del otro.
+- **Niveles y evaluaciones**: 5 niveles (Iniciación→Élite) con rúbricas se crean
+  automáticamente al arrancar. Desde la ficha del jugador, el coach registra la
+  evaluación por criterio y, si se cumplen los umbrales, promueve de nivel.
 
 ### Variables de entorno nuevas (backend)
 

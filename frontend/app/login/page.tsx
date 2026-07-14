@@ -222,6 +222,13 @@ export default function LoginPage() {
           </button>
         )}
       </motion.div>
+
+      <a
+        href="/player/login"
+        className="block text-center text-sm font-bold text-slate-400 hover:text-amber-600 mt-6 transition-colors"
+      >
+        ¿Eres jugador? Entra a tu área →
+      </a>
     </div>
   );
 }

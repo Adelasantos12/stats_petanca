@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { Users, Target } from "lucide-react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -45,6 +45,13 @@ export default function RootLayout({
               >
                 <Users size={18} />
                 <span className="hidden sm:inline uppercase tracking-wide text-xs">Coach</span>
+              </Link>
+              <Link
+                href="/player"
+                className="flex items-center gap-1.5 text-sm font-black text-slate-500 hover:text-amber-600 transition-colors"
+              >
+                <Target size={18} />
+                <span className="hidden sm:inline uppercase tracking-wide text-xs">Jugador</span>
               </Link>
             </nav>
           </div>

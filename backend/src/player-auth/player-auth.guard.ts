@@ -6,34 +6,27 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-/**
- * Guard mínimo basado en Bearer token. Verifica el JWT y adjunta el coach
- * autenticado a request.coach para el resto de la petición.
- */
+/** Verifica el JWT y exige que sea un token de jugador (kind === 'PLAYER'). */
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class PlayerAuthGuard implements CanActivate {
   constructor(private readonly jwt: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const header: string | undefined = request.headers?.authorization;
-
-    if (!header || !header.startsWith('Bearer ')) {
+    if (!header?.startsWith('Bearer ')) {
       throw new UnauthorizedException('Falta el token de autenticación');
     }
-
-    const token = header.slice('Bearer '.length).trim();
-
     try {
-      const payload = await this.jwt.verifyAsync(token);
-      // Un token de jugador no puede operar en endpoints de coach.
-      if (payload.kind === 'PLAYER') {
-        throw new UnauthorizedException('Se requiere una cuenta de coach');
+      const payload = await this.jwt.verifyAsync(
+        header.slice('Bearer '.length).trim(),
+      );
+      if (payload.kind !== 'PLAYER') {
+        throw new UnauthorizedException('Se requiere una cuenta de jugador');
       }
-      request.coach = {
+      request.player = {
         id: payload.sub,
-        email: payload.email,
-        role: payload.role,
+        email: payload.email ?? null,
         name: payload.name,
       };
       return true;

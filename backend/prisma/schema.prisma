@@ -45,6 +45,9 @@ model Player {
   category  String? // BENJAMIN, MINIME, CADET, JUNIOR, SENIOR, VETERAN...
   level     String? // Iniciación, Bronce, Plata, Oro, Élite
   notes     String?
+  password  String? // hash bcrypt; null si el jugador aún no reclamó su cuenta
+  provider  String   @default("none") // none, password, google
+  googleId  String?  @unique
   coachId   String? // dueño del jugador (roster del coach); null = jugador suelto de partido
   coach     Coach?        @relation(fields: [coachId], references: [id])
   createdAt DateTime      @default(now())

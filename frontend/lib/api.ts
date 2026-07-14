@@ -29,11 +29,13 @@ api.interceptors.response.use(
       !window.location.pathname.startsWith('/login')
     ) {
       const url: string = error?.config?.url ?? '';
-      // No redirigimos por endpoints de auth (login/register/status).
-      if (!url.includes('/auth/')) {
+      // No redirigimos por endpoints de auth (login/register/status/google).
+      if (!url.includes('/auth/') && !url.includes('/player-auth/')) {
         localStorage.removeItem('ciep_token');
         localStorage.removeItem('ciep_coach');
-        window.location.href = '/login';
+        localStorage.removeItem('ciep_player');
+        const player = window.location.pathname.startsWith('/player');
+        window.location.href = player ? '/player/login' : '/login';
       }
     }
     return Promise.reject(error);

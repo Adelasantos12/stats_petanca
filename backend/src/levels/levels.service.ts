@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 // Niveles por defecto (recorrido del jugador) con rúbricas de ejemplo editables.
@@ -54,8 +54,20 @@ const DEFAULT_LEVELS: {
 ];
 
 @Injectable()
-export class LevelsService {
+export class LevelsService implements OnModuleInit {
+  private readonly logger = new Logger(LevelsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
+
+  // Siembra los niveles al arrancar para que estén disponibles en todo el sistema
+  // (evaluaciones del coach y vista del jugador), sin depender de quién llame primero.
+  async onModuleInit() {
+    try {
+      await this.ensureSeeded();
+    } catch (e) {
+      this.logger.warn(`No se pudieron sembrar los niveles al arrancar: ${e}`);
+    }
+  }
 
   /** Crea los niveles por defecto si aún no existen. Idempotente. */
   async ensureSeeded() {

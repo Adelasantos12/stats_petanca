@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
 import { LevelsModule } from './levels/levels.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
+import { PlayerAuthModule } from './player-auth/player-auth.module';
 import { HealthController } from './health/health.controller';
 import { HealthService } from './health/health.service';
 
@@ -18,6 +19,7 @@ import { HealthService } from './health/health.service';
     PlayersModule,
     LevelsModule,
     EvaluationsModule,
+    PlayerAuthModule,
     MatchesModule,
     ThrowsModule,
   ],

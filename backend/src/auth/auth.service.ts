@@ -38,6 +38,7 @@ export class AuthService {
   }) {
     const token = this.jwt.sign({
       sub: coach.id,
+      kind: 'COACH',
       email: coach.email,
       role: coach.role,
       name: coach.name,

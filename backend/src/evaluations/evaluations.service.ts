@@ -25,7 +25,28 @@ export class EvaluationsService {
    * al nivel actual del jugador) y devuelve sus criterios para prellenar la rúbrica.
    */
   async nextLevel(playerId: string, coach: AuthCoach) {
-    const player = await this.getPlayerOrThrow(playerId, coach);
+    await this.getPlayerOrThrow(playerId, coach);
+    return this.computeNextLevel(playerId);
+  }
+
+  /** Vista del propio jugador de qué le falta para subir (solo lectura). */
+  async nextLevelForSelf(playerId: string) {
+    return this.computeNextLevel(playerId);
+  }
+
+  async findForPlayerSelf(playerId: string) {
+    return this.prisma.evaluation.findMany({
+      where: { playerId },
+      orderBy: { date: 'desc' },
+      include: { items: true, targetLevel: { select: { name: true } } },
+    });
+  }
+
+  private async computeNextLevel(playerId: string) {
+    const player = await this.prisma.player.findUnique({
+      where: { id: playerId },
+    });
+    if (!player) throw new NotFoundException('Jugador no encontrado');
     const levels = await this.prisma.level.findMany({
       orderBy: { order: 'asc' },
       include: { criteria: { orderBy: { order: 'asc' } } },

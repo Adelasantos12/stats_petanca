@@ -46,7 +46,7 @@ export class PlayersService {
     return this.prisma.player.create({
       data: {
         name: dto.name.trim(),
-        email: dto.email?.trim() || null,
+        email: dto.email?.trim().toLowerCase() || null,
         category: dto.category || null,
         level: dto.level || null,
         notes: dto.notes || null,
@@ -64,7 +64,7 @@ export class PlayersService {
       where: { id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.email !== undefined ? { email: dto.email?.trim() || null } : {}),
+        ...(dto.email !== undefined ? { email: dto.email?.trim().toLowerCase() || null } : {}),
         ...(dto.category !== undefined ? { category: dto.category || null } : {}),
         ...(dto.level !== undefined ? { level: dto.level || null } : {}),
         ...(dto.notes !== undefined ? { notes: dto.notes || null } : {}),
@@ -102,10 +102,24 @@ export class PlayersService {
   async getDevelopment(id: string, coach: AuthCoach) {
     const player = await this.prisma.player.findUnique({
       where: { id },
-      include: { throws: true },
+      select: { coachId: true },
     });
     if (!player) throw new NotFoundException('Jugador no encontrado');
     this.assertAccess(player, coach);
+    return this.computeDevelopment(id);
+  }
+
+  /** Igual que getDevelopment pero sin control de coach: el jugador ve lo suyo. */
+  async getDevelopmentForSelf(id: string) {
+    return this.computeDevelopment(id);
+  }
+
+  private async computeDevelopment(id: string) {
+    const player = await this.prisma.player.findUnique({
+      where: { id },
+      include: { throws: true },
+    });
+    if (!player) throw new NotFoundException('Jugador no encontrado');
 
     const matchIds = [...new Set(player.throws.map((t) => t.matchId))];
 
