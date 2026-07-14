@@ -30,6 +30,11 @@ export class PlayersController {
     return this.players.findOne(id, coach);
   }
 
+  @Get(':id/development')
+  development(@Param('id') id: string, @CurrentCoach() coach: AuthCoach) {
+    return this.players.getDevelopment(id, coach);
+  }
+
   @Post()
   create(@Body() dto: CreatePlayerDto, @CurrentCoach() coach: AuthCoach) {
     return this.players.create(dto, coach);

@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { AuthCoach } from '../auth/current-coach.decorator';
+import { calculateMetrics } from '../scoring/scoring';
 
 @Injectable()
 export class PlayersService {
@@ -91,6 +92,82 @@ export class PlayersService {
 
     await this.prisma.player.delete({ where: { id } });
     return { deleted: true };
+  }
+
+  /**
+   * Desarrollo agregado del jugador: performance acumulado (total, point y tir)
+   * a lo largo de TODAS sus partidas, más su evolución partido a partido.
+   * Excluye los lanzamientos de manos anuladas, igual que el performance de partido.
+   */
+  async getDevelopment(id: string, coach: AuthCoach) {
+    const player = await this.prisma.player.findUnique({
+      where: { id },
+      include: { throws: true },
+    });
+    if (!player) throw new NotFoundException('Jugador no encontrado');
+    this.assertAccess(player, coach);
+
+    const matchIds = [...new Set(player.throws.map((t) => t.matchId))];
+
+    const [canceledHands, matches] = await Promise.all([
+      this.prisma.hand.findMany({
+        where: { matchId: { in: matchIds }, status: 'CANCELED' },
+        select: { matchId: true, handNumber: true },
+      }),
+      this.prisma.match.findMany({
+        where: { id: { in: matchIds } },
+        select: {
+          id: true,
+          createdAt: true,
+          teamAName: true,
+          teamBName: true,
+          status: true,
+        },
+      }),
+    ]);
+
+    const canceled = new Set(
+      canceledHands.map((h) => `${h.matchId}:${h.handNumber}`),
+    );
+    const validThrows = player.throws.filter(
+      (t) => !canceled.has(`${t.matchId}:${t.handNumber}`),
+    );
+
+    const matchById = new Map(matches.map((m) => [m.id, m]));
+    const perMatch = matchIds
+      .map((mid) => {
+        const m = matchById.get(mid);
+        const throws = validThrows.filter((t) => t.matchId === mid);
+        return {
+          matchId: mid,
+          date: m?.createdAt ?? null,
+          teams: m ? `${m.teamAName} vs ${m.teamBName}` : null,
+          status: m?.status ?? null,
+          ...calculateMetrics(throws),
+        };
+      })
+      .sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0;
+        const db = b.date ? new Date(b.date).getTime() : 0;
+        return da - db;
+      });
+
+    return {
+      player: {
+        id: player.id,
+        name: player.name,
+        level: player.level,
+        category: player.category,
+        notes: player.notes,
+      },
+      matchesPlayed: matchIds.length,
+      total: calculateMetrics(validThrows),
+      point: calculateMetrics(
+        validThrows.filter((t) => t.throwType === 'POINT'),
+      ),
+      tir: calculateMetrics(validThrows.filter((t) => t.throwType === 'TIR')),
+      perMatch,
+    };
   }
 
   private assertAccess(player: { coachId: string | null }, coach: AuthCoach) {

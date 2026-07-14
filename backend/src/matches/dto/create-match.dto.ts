@@ -5,12 +5,28 @@ import {
   IsString,
   ArrayMinSize,
   IsArray,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum Modality {
   SINGLE = 'SINGLE',
   DOUBLES = 'DOUBLES',
   TRIPLES = 'TRIPLES',
+}
+
+/**
+ * Un jugador de la partida puede venir del roster (por `id`) o como nombre
+ * suelto (`name`), p.ej. un invitado del parque. Debe traer al menos uno.
+ */
+export class PlayerInputDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }
 
 export class CreateMatchDto {
@@ -28,12 +44,14 @@ export class CreateMatchDto {
   teamBName: string;
 
   @IsArray()
-  @IsString({ each: true })
   @ArrayMinSize(1)
-  playersA: string[];
+  @ValidateNested({ each: true })
+  @Type(() => PlayerInputDto)
+  playersA: PlayerInputDto[];
 
   @IsArray()
-  @IsString({ each: true })
   @ArrayMinSize(1)
-  playersB: string[];
+  @ValidateNested({ each: true })
+  @Type(() => PlayerInputDto)
+  playersB: PlayerInputDto[];
 }

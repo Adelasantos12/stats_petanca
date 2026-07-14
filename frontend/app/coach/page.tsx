@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import api, { apiErrorMessage } from '@/lib/api';
 import { getToken, getCoach, clearSession, Coach } from '@/lib/auth';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -261,8 +262,8 @@ export default function CoachPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-center justify-between gap-4"
               >
-                <div className="min-w-0">
-                  <div className="font-black text-slate-800 text-lg truncate">
+                <Link href={`/coach/players/${p.id}`} className="min-w-0 group/link">
+                  <div className="font-black text-slate-800 text-lg truncate group-hover/link:text-indigo-600 transition-colors">
                     {p.name}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -291,7 +292,7 @@ export default function CoachPage() {
                       {p.notes}
                     </p>
                   )}
-                </div>
+                </Link>
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => startEdit(p)}
