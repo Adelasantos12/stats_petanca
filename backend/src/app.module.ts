@@ -5,6 +5,8 @@ import { MatchesModule } from './matches/matches.module';
 import { ThrowsModule } from './throws/throws.module';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
+import { LevelsModule } from './levels/levels.module';
+import { EvaluationsModule } from './evaluations/evaluations.module';
 import { HealthController } from './health/health.controller';
 import { HealthService } from './health/health.service';
 
@@ -14,6 +16,8 @@ import { HealthService } from './health/health.service';
     PrismaModule,
     AuthModule,
     PlayersModule,
+    LevelsModule,
+    EvaluationsModule,
     MatchesModule,
     ThrowsModule,
   ],

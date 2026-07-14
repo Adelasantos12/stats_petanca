@@ -50,6 +50,57 @@ model Player {
   createdAt DateTime      @default(now())
   matches   MatchPlayer[]
   throws    Throw[]
+  evaluations Evaluation[]
+}
+
+// Nivel dentro del recorrido del jugador (Iniciación → Élite).
+model Level {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  order       Int              @unique
+  description String?
+  criteria    LevelCriterion[]
+  evaluations Evaluation[]
+}
+
+// Criterio observable/medible de un nivel (rúbrica). Ej: "Tir a 7-8m ≥ 55%".
+model LevelCriterion {
+  id        String  @id @default(uuid())
+  levelId   String
+  level     Level   @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  label     String
+  dimension String? // M, E, R, C, I (marco MERCI) — opcional
+  target    Float // umbral a alcanzar (p.ej. 55 = 55%)
+  unit      String  @default("%") // %, m, pts... informativo
+  order     Int     @default(0)
+}
+
+// Evaluación de un jugador para intentar superar un nivel.
+model Evaluation {
+  id            String           @id @default(uuid())
+  playerId      String
+  player        Player           @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId       String? // quién evaluó (sin FK dura)
+  targetLevelId String?
+  targetLevel   Level?           @relation(fields: [targetLevelId], references: [id])
+  date          DateTime         @default(now())
+  passed        Boolean          @default(false)
+  notes         String?
+  items         EvaluationItem[]
+}
+
+// Resultado de un criterio dentro de una evaluación.
+model EvaluationItem {
+  id           String     @id @default(uuid())
+  evaluationId String
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  criterionId  String?
+  label        String
+  target       Float
+  attempts     Int
+  successes    Int
+  score        Float // % de acierto = successes/attempts*100
+  met          Boolean // ¿alcanzó el umbral?
 }
 
 model MatchPlayer {

@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import EvaluationSection from './EvaluationSection';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Target, Zap, Activity, TrendingUp, Award } from 'lucide-react';
 import {
@@ -45,17 +46,20 @@ export default function PlayerDevelopment() {
   const [data, setData] = useState<Development | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadDev = useCallback(() => {
+    return api
+      .get(`/players/${id}/development`)
+      .then((res) => setData(res.data))
+      .catch(() => {});
+  }, [id]);
+
   useEffect(() => {
     if (!getToken()) {
       router.replace('/login');
       return;
     }
-    api
-      .get(`/players/${id}/development`)
-      .then((res) => setData(res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [id, router]);
+    loadDev().finally(() => setLoading(false));
+  }, [router, loadDev]);
 
   if (loading) {
     return <div className="p-20 text-center font-black text-slate-300 animate-pulse">Cargando desarrollo…</div>;
@@ -150,6 +154,9 @@ export default function PlayerDevelopment() {
             ))}
         </div>
       )}
+
+      {/* Evaluación de nivel (rúbricas + promoción) */}
+      <EvaluationSection playerId={String(id)} onPromoted={loadDev} />
     </motion.div>
   );
 }
