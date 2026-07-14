@@ -159,7 +159,7 @@ export default function NewMatch() {
       </div>
 
       {roster.length > 0 && (
-        <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl px-5 py-3 text-sm font-semibold text-indigo-900/70">
+        <div className="bg-brand-50/60 border border-brand-100 rounded-2xl px-5 py-3 text-sm font-semibold text-brand-900/70">
           Elige jugadores de tu roster para que su rendimiento se acumule en su
           perfil, o escribe un nombre para un invitado.
         </div>
@@ -169,7 +169,7 @@ export default function NewMatch() {
         {/* Modality Selection */}
         <section className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 space-y-6">
           <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg">
-            <Users size={20} className="text-indigo-600" /> Modalidad de Juego
+            <Users size={20} className="text-brand-600" /> Modalidad de Juego
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {(['SINGLE', 'DOUBLES', 'TRIPLES'] as Modality[]).map((m) => (
@@ -180,7 +180,7 @@ export default function NewMatch() {
                 onClick={() => handleModalityChange(m)}
                 className={`py-4 rounded-2xl border-2 font-black transition-all ${
                   modality === m
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100'
+                    ? 'border-brand-600 bg-brand-50 text-brand-700 shadow-lg shadow-brand-100'
                     : 'border-slate-50 bg-slate-50 text-slate-400'
                 }`}
               >
@@ -193,7 +193,7 @@ export default function NewMatch() {
         {/* Configuration */}
         <section className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 space-y-6">
           <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg">
-            <Settings size={20} className="text-indigo-600" /> Configuración
+            <Settings size={20} className="text-brand-600" /> Configuración
           </h3>
           <div className="max-w-xs">
             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Puntos Objetivo</label>
@@ -204,9 +204,9 @@ export default function NewMatch() {
                 max="30"
                 value={targetPoints}
                 onChange={(e) => setTargetPoints(parseInt(e.target.value))}
-                className="flex-1 accent-indigo-600"
+                className="flex-1 accent-brand-600"
               />
-              <span className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-200">
+              <span className="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-brand-200">
                 {targetPoints}
               </span>
             </div>
@@ -260,7 +260,7 @@ export default function NewMatch() {
           disabled={loading}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-indigo-600 text-white p-6 rounded-[2rem] font-black text-2xl flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 disabled:bg-slate-300 transition-all hover:bg-indigo-700 active:shadow-inner"
+          className="w-full bg-brand-600 text-white p-6 rounded-[2rem] font-black text-2xl flex items-center justify-center gap-3 shadow-2xl shadow-brand-200 disabled:bg-slate-300 transition-all hover:bg-brand-700 active:shadow-inner"
         >
           {loading ? 'Creando...' : (
             <>

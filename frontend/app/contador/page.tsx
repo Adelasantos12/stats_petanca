@@ -48,52 +48,61 @@ export default function Contador() {
       const g = c.getContext('2d');
       if (!g) return resolve(null);
 
-      // fondo degradado
-      const grad = g.createLinearGradient(0, 0, S, S);
-      grad.addColorStop(0, '#4338ca');
-      grad.addColorStop(1, '#7c3aed');
-      g.fillStyle = grad;
-      g.fillRect(0, 0, S, S);
+      const ORANGE = '#DD5A2F';
+      const center = S / 2;
 
-      // burbujas decorativas
-      g.globalAlpha = 0.08; g.fillStyle = '#ffffff';
-      g.beginPath(); g.arc(920, 160, 240, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.arc(120, 980, 200, 0, Math.PI * 2); g.fill();
+      // fondo carboncillo (marca perform)
+      g.fillStyle = '#26231F';
+      g.fillRect(0, 0, S, S);
+      g.globalAlpha = 0.06; g.fillStyle = ORANGE;
+      g.beginPath(); g.arc(930, 150, 260, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(120, 980, 210, 0, Math.PI * 2); g.fill();
       g.globalAlpha = 1;
 
-      const center = S / 2;
-      g.textAlign = 'center';
+      // flecha de marca (↗) arriba
+      g.strokeStyle = ORANGE;
+      g.lineWidth = 26; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(center - 34, 190); g.lineTo(center + 20, 136); g.stroke();
+      g.beginPath(); g.moveTo(center - 16, 132); g.lineTo(center + 28, 132); g.lineTo(center + 28, 176); g.stroke();
 
-      // etiqueta
-      g.fillStyle = 'rgba(255,255,255,0.65)';
-      g.font = '700 30px system-ui, sans-serif';
-      g.fillText('P E T A N C A   ·   R E S U L T A D O', center, 130);
+      g.textAlign = 'center';
+      g.fillStyle = 'rgba(255,255,255,0.55)';
+      g.font = '700 28px system-ui, sans-serif';
+      g.fillText('R E S U L T A D O', center, 268);
+
+      // nombres de equipo
+      const clip = (t: string) => (t.length > 18 ? t.slice(0, 17) + '…' : t);
+      g.font = '800 52px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,0.95)';
+      g.fillText(`${clip(teamA)}   vs   ${clip(teamB)}`, center, 380);
 
       // marcador grande
       g.fillStyle = '#ffffff';
-      g.font = '900 300px system-ui, sans-serif';
-      g.fillText(`${scoreA} – ${scoreB}`, center, center + 60);
-
-      // nombres de equipo
-      g.font = '800 52px system-ui, sans-serif';
-      g.fillStyle = 'rgba(255,255,255,0.95)';
-      const clip = (t: string) => (t.length > 18 ? t.slice(0, 17) + '…' : t);
-      g.fillText(`${clip(teamA)}   vs   ${clip(teamB)}`, center, center - 210);
+      g.font = '900 290px system-ui, sans-serif';
+      g.fillText(`${scoreA} – ${scoreB}`, center, center + 130);
 
       // ganador
       if (winner) {
-        g.fillStyle = '#fde047';
-        g.font = '900 60px system-ui, sans-serif';
-        g.fillText(`🏆  Ganó ${clip(winnerName)}`, center, center + 220);
+        g.fillStyle = ORANGE;
+        g.font = '900 62px system-ui, sans-serif';
+        g.fillText(`🏆  Ganó ${clip(winnerName)}`, center, center + 260);
       }
 
-      // pie / marca
-      g.fillStyle = 'rgba(255,255,255,0.92)';
-      g.font = '900 46px system-ui, sans-serif';
-      g.fillText('PetancaPro', center, S - 110);
-      g.fillStyle = 'rgba(255,255,255,0.6)';
+      // pie / marca "perform."
+      g.font = '800 58px system-ui, sans-serif';
+      g.fillStyle = '#ffffff';
+      const word = 'perform';
+      const wWord = g.measureText(word).width;
+      const dot = g.measureText('.').width;
+      const startX = center - (wWord + dot) / 2;
+      g.textAlign = 'left';
+      g.fillText(word, startX, S - 118);
+      g.fillStyle = ORANGE;
+      g.fillText('.', startX + wWord, S - 118);
+      g.textAlign = 'center';
+      g.fillStyle = 'rgba(255,255,255,0.5)';
       g.font = '600 30px system-ui, sans-serif';
-      g.fillText('Marca. Comparte. Presume.', center, S - 62);
+      g.fillText('Entrenamiento de petanca', center, S - 66);
 
       c.toBlob((b) => resolve(b), 'image/png');
     });
@@ -105,8 +114,8 @@ export default function Contador() {
       if (!blob) return;
       const file = new File([blob], 'petanca-resultado.png', { type: 'image/png' });
       const text = winner
-        ? `${winnerName} ganó ${Math.max(scoreA, scoreB)}-${Math.min(scoreA, scoreB)} 🎯 · PetancaPro`
-        : `${teamA} ${scoreA} - ${scoreB} ${teamB} · PetancaPro`;
+        ? `${winnerName} ganó ${Math.max(scoreA, scoreB)}-${Math.min(scoreA, scoreB)} 🎯 · perform`
+        : `${teamA} ${scoreA} - ${scoreB} ${teamB} · perform`;
 
       const nav = navigator as Navigator & { canShare?: (d: unknown) => boolean };
       if (nav.canShare && nav.canShare({ files: [file] })) {
@@ -154,14 +163,14 @@ export default function Contador() {
         Juego a
         {[11, 13].map((t) => (
           <button key={t} onClick={() => setTarget(t)}
-            className={`px-3 py-1 rounded-full ${target === t ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>{t}</button>
+            className={`px-3 py-1 rounded-full ${target === t ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400'}`}>{t}</button>
         ))}
         puntos
       </div>
 
       {/* marcadores */}
       <div className="grid grid-cols-2 gap-4">
-        <TeamPanel name={teamA} setName={setTeamA} score={scoreA} color="indigo" onAdd={(n) => add('A', n)} locked={!!winner} />
+        <TeamPanel name={teamA} setName={setTeamA} score={scoreA} color="brand" onAdd={(n) => add('A', n)} locked={!!winner} />
         <TeamPanel name={teamB} setName={setTeamB} score={scoreB} color="rose" onAdd={(n) => add('B', n)} locked={!!winner} />
       </div>
 
@@ -176,10 +185,10 @@ export default function Contador() {
               <Crown size={34} className="text-amber-500 mx-auto" />
               <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">Ganador</div>
               <div className="text-2xl font-black text-slate-800">{winnerName}</div>
-              <div className="text-4xl font-black text-indigo-600 my-2 tabular-nums">{scoreA} – {scoreB}</div>
+              <div className="text-4xl font-black text-brand-600 my-2 tabular-nums">{scoreA} – {scoreB}</div>
               <div className="grid grid-cols-3 gap-2 mt-4">
                 <button onClick={share} disabled={sharing}
-                  className="col-span-3 bg-indigo-600 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 active:scale-95 disabled:opacity-60">
+                  className="col-span-3 bg-brand-600 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-700 active:scale-95 disabled:opacity-60">
                   <Share2 size={18} /> {sharing ? 'Preparando…' : 'Compartir resultado'}
                 </button>
                 <button onClick={download} className="bg-slate-100 text-slate-600 font-bold py-3 rounded-2xl flex items-center justify-center gap-1 active:scale-95"><Download size={16} /></button>
@@ -196,9 +205,9 @@ export default function Contador() {
 function TeamPanel({
   name, setName, score, color, onAdd, locked,
 }: {
-  name: string; setName: (v: string) => void; score: number; color: 'indigo' | 'rose'; onAdd: (n: number) => void; locked: boolean;
+  name: string; setName: (v: string) => void; score: number; color: 'brand' | 'rose'; onAdd: (n: number) => void; locked: boolean;
 }) {
-  const bg = color === 'indigo' ? 'from-indigo-500 to-indigo-600 shadow-indigo-200' : 'from-rose-500 to-rose-600 shadow-rose-200';
+  const bg = color === 'brand' ? 'from-brand-500 to-brand-600 shadow-brand-200' : 'from-rose-500 to-rose-600 shadow-rose-200';
   return (
     <div className={`bg-gradient-to-br ${bg} rounded-[2.5rem] p-5 shadow-xl flex flex-col`}>
       <input value={name} onChange={(e) => setName(e.target.value)}

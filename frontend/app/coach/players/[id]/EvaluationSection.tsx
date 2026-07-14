@@ -113,7 +113,7 @@ export default function EvaluationSection({
   return (
     <div className="space-y-5">
       <h3 className="font-black text-slate-700 flex items-center gap-2 text-sm uppercase tracking-widest">
-        <ClipboardCheck size={18} className="text-indigo-600" /> Evaluación de nivel
+        <ClipboardCheck size={18} className="text-brand-600" /> Evaluación de nivel
       </h3>
 
       {next.atMax ? (
@@ -127,8 +127,8 @@ export default function EvaluationSection({
             <span className="font-bold text-slate-500">
               {next.currentLevel ? next.currentLevel.name : 'Sin nivel'}
             </span>
-            <ChevronUp size={16} className="text-indigo-500 rotate-90" />
-            <span className="font-black text-indigo-600">{next.nextLevel!.name}</span>
+            <ChevronUp size={16} className="text-brand-500 rotate-90" />
+            <span className="font-black text-brand-600">{next.nextLevel!.name}</span>
             {next.nextLevel!.description && (
               <span className="text-slate-400 text-xs">· {next.nextLevel!.description}</span>
             )}
@@ -151,7 +151,7 @@ export default function EvaluationSection({
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="font-bold text-slate-700 text-sm">
                         {c.dimension && (
-                          <span className="text-[9px] font-black text-indigo-500 mr-1.5 uppercase">{c.dimension}</span>
+                          <span className="text-[9px] font-black text-brand-500 mr-1.5 uppercase">{c.dimension}</span>
                         )}
                         {c.label}
                       </div>
@@ -189,7 +189,7 @@ export default function EvaluationSection({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Notas del coach (opcional)"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
 
               {error && (
@@ -199,7 +199,7 @@ export default function EvaluationSection({
               <button
                 onClick={submit}
                 disabled={submitting}
-                className="w-full bg-indigo-600 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 disabled:opacity-60"
+                className="w-full bg-brand-600 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-700 transition-all active:scale-95 shadow-lg shadow-brand-100 disabled:opacity-60"
               >
                 <ClipboardCheck size={18} />
                 {submitting ? 'Registrando…' : `Registrar evaluación de ${next.nextLevel!.name}`}
@@ -281,7 +281,7 @@ function NumInput({
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
     />
   );
 }

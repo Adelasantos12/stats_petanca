@@ -84,7 +84,7 @@ export default function PlayerDevelopment() {
           <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-none">{data.player.name}</h2>
           <div className="flex gap-2 mt-2">
             {data.player.level && (
-              <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-wide">
+              <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-600 uppercase tracking-wide">
                 {data.player.level}
               </span>
             )}
@@ -99,7 +99,7 @@ export default function PlayerDevelopment() {
 
       {/* Resumen acumulado */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat icon={<Award size={16} />} label="Performance global" value={data.total.performance != null ? `${data.total.performance}%` : '—'} big accent="bg-indigo-600 text-white" />
+        <Stat icon={<Award size={16} />} label="Performance global" value={data.total.performance != null ? `${data.total.performance}%` : '—'} big accent="bg-brand-600 text-white" />
         <Stat icon={<Target size={16} className="text-emerald-500" />} label="Point" value={data.point.performance != null ? `${data.point.performance}%` : '—'} sub={`n = ${data.point.n}`} />
         <Stat icon={<Zap size={16} className="text-amber-500" />} label="Tir" value={data.tir.performance != null ? `${data.tir.performance}%` : '—'} sub={`n = ${data.tir.n}`} />
         <Stat icon={<Activity size={16} className="text-slate-400" />} label="Partidas" value={`${data.matchesPlayed}`} sub={`${data.total.n} lanzamientos`} />
@@ -108,7 +108,7 @@ export default function PlayerDevelopment() {
       {/* Evolución */}
       <div className="glass rounded-[2rem] p-6 shadow-xl shadow-slate-200/30 border border-white/50">
         <h3 className="font-black text-slate-700 flex items-center gap-2 mb-6">
-          <TrendingUp size={18} className="text-indigo-600" /> Evolución por partida
+          <TrendingUp size={18} className="text-brand-600" /> Evolución por partida
         </h3>
         {evolution.length === 0 ? (
           <p className="text-slate-400 font-semibold text-sm py-8 text-center">
@@ -149,7 +149,7 @@ export default function PlayerDevelopment() {
                     {m.date ? new Date(m.date).toLocaleDateString() : ''} · {m.n} lanzamientos
                   </div>
                 </div>
-                <div className="text-2xl font-black text-indigo-600">
+                <div className="text-2xl font-black text-brand-600">
                   {m.performance != null ? `${m.performance}%` : '—'}
                 </div>
               </Link>

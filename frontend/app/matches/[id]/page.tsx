@@ -172,10 +172,10 @@ export default function LiveMatch() {
       >
         <div className="flex justify-between items-center">
           <Link href="/" className="p-3 hover:bg-white/50 rounded-2xl transition-all active:scale-90"><ChevronLeft size={24} /></Link>
-          <div className="text-[10px] font-black bg-indigo-600 px-5 py-2.5 rounded-full text-white tracking-[0.2em] uppercase">
+          <div className="text-[10px] font-black bg-brand-600 px-5 py-2.5 rounded-full text-white tracking-[0.2em] uppercase">
             Mano {currentHandNumber}
           </div>
-          <Link href={`/matches/${id}/performance`} className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl transition-all active:scale-90"><BarChart2 size={24} /></Link>
+          <Link href={`/matches/${id}/performance`} className="p-3 bg-brand-50 text-brand-600 rounded-2xl transition-all active:scale-90"><BarChart2 size={24} /></Link>
         </div>
 
         <div className="flex justify-between items-center gap-4">
@@ -263,7 +263,7 @@ export default function LiveMatch() {
                   onClick={() => handleTeamChange('A')}
                   className={cn(
                     "flex-1 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all",
-                    selectedTeam === 'A' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"
+                    selectedTeam === 'A' ? "bg-white text-brand-600 shadow-sm" : "text-slate-400"
                   )}
                 >
                   {match.teamAName}
@@ -293,7 +293,7 @@ export default function LiveMatch() {
                         className={cn(
                           "flex-shrink-0 px-6 py-5 rounded-[2.2rem] border-2 transition-all flex flex-col items-center min-w-[110px]",
                           isSelected
-                            ? (selectedTeam === 'A' ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
+                            ? (selectedTeam === 'A' ? "border-brand-600 bg-brand-50 text-brand-700 shadow-lg shadow-brand-100" : "border-rose-600 bg-rose-50 text-rose-700 shadow-lg shadow-rose-100")
                             : "border-transparent bg-slate-50 text-slate-400"
                         )}
                       >
@@ -302,7 +302,7 @@ export default function LiveMatch() {
                             {[...Array(ballsPerPlayer)].map((_, i) => (
                                 <div key={i} className={cn(
                                     "w-2 h-2 rounded-full",
-                                    i < used ? (selectedTeam === 'A' ? "bg-indigo-600" : "bg-rose-600") : "bg-slate-200"
+                                    i < used ? (selectedTeam === 'A' ? "bg-brand-600" : "bg-rose-600") : "bg-slate-200"
                                 )} />
                             ))}
                         </div>
@@ -364,7 +364,7 @@ export default function LiveMatch() {
             </div>
 
             <div className="flex gap-3">
-                <div className="flex-1 bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
+                <div className="flex-1 bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-brand-400 focus-within:bg-white transition-all">
                     <span className="text-[10px] font-black text-slate-300 uppercase italic">Dist</span>
                     <input
                         type="number"
@@ -375,7 +375,7 @@ export default function LiveMatch() {
                         className="w-full bg-transparent border-0 focus:ring-0 outline-none font-bold text-slate-700"
                     />
                 </div>
-                <div className="flex-[1.5] bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-indigo-400 focus-within:bg-white transition-all">
+                <div className="flex-[1.5] bg-slate-50/50 rounded-2xl p-4 flex items-center gap-3 border-2 border-transparent focus-within:border-brand-400 focus-within:bg-white transition-all">
                     <span className="text-[10px] font-black text-slate-300 uppercase italic">Nota</span>
                     <input
                         type="text"
@@ -394,7 +394,7 @@ export default function LiveMatch() {
               whileTap={{ scale: 0.95 }}
               onClick={handleSaveThrow}
               disabled={effectiveness === null}
-              className="flex-[2.5] bg-indigo-600 text-white py-6 rounded-[2rem] font-black text-xl shadow-xl shadow-indigo-200 disabled:bg-slate-200 disabled:shadow-none transition-all flex items-center justify-center gap-3"
+              className="flex-[2.5] bg-brand-600 text-white py-6 rounded-[2rem] font-black text-xl shadow-xl shadow-brand-200 disabled:bg-slate-200 disabled:shadow-none transition-all flex items-center justify-center gap-3"
             >
               <Save size={24} />
               GUARDAR BOLA
@@ -418,7 +418,7 @@ export default function LiveMatch() {
             </button>
             <button
               onClick={() => setFinishingMatch(true)}
-              className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-indigo-500 transition-all shadow-sm"
+              className="glass border-white/50 text-slate-400 p-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-widest flex flex-col items-center gap-3 hover:bg-white hover:text-brand-500 transition-all shadow-sm"
             >
               <AlertCircle size={24} />
               Terminar
@@ -435,7 +435,7 @@ export default function LiveMatch() {
             </h3>
             <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="text-[10px] font-black text-indigo-600 uppercase tracking-widest"
+                className="text-[10px] font-black text-brand-600 uppercase tracking-widest"
             >
                 {showHistory ? 'Ocultar' : 'Ver todo'}
             </button>
@@ -469,7 +469,7 @@ export default function LiveMatch() {
                                 </span>
                             )
                         ) : (
-                            <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full uppercase animate-pulse">En Curso</span>
+                            <span className="text-[10px] font-black text-brand-500 bg-brand-50 px-3 py-1 rounded-full uppercase animate-pulse">En Curso</span>
                         )}
                         </div>
                         <div className="divide-y divide-white/20">
@@ -528,7 +528,7 @@ export default function LiveMatch() {
                 <div className="grid grid-cols-2 gap-4">
                     <button
                         onClick={() => handleCloseHand('A', 1)}
-                        className="bg-indigo-600 text-white p-7 rounded-[2.5rem] font-black shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all text-sm uppercase tracking-widest"
+                        className="bg-brand-600 text-white p-7 rounded-[2.5rem] font-black shadow-xl shadow-brand-100 hover:bg-brand-700 active:scale-95 transition-all text-sm uppercase tracking-widest"
                     >
                         {match.teamAName}
                     </button>
@@ -545,7 +545,7 @@ export default function LiveMatch() {
                     <div className="grid grid-cols-3 gap-3">
                         {[1,2,3,4,5,6].map(v => (
                         <div key={v} className="flex flex-col gap-2">
-                            <button onClick={() => handleCloseHand('A', v)} className="bg-white text-indigo-600 py-3.5 rounded-2xl font-black text-xs shadow-sm active:bg-indigo-50 border border-slate-100">+A {v}</button>
+                            <button onClick={() => handleCloseHand('A', v)} className="bg-white text-brand-600 py-3.5 rounded-2xl font-black text-xs shadow-sm active:bg-brand-50 border border-slate-100">+A {v}</button>
                             <button onClick={() => handleCloseHand('B', v)} className="bg-white text-rose-600 py-3.5 rounded-2xl font-black text-xs shadow-sm active:bg-rose-50 border border-slate-100">+B {v}</button>
                         </div>
                         ))}

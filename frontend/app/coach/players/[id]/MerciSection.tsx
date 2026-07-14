@@ -60,9 +60,9 @@ export default function MerciSection({ playerId }: { playerId: string }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h3 className="font-black text-slate-700 flex items-center gap-2 text-sm uppercase tracking-widest">
-          <RadarIcon size={18} className="text-indigo-600" /> Evaluación MERCI
+          <RadarIcon size={18} className="text-brand-600" /> Evaluación MERCI
         </h3>
-        <button onClick={() => setOpenForm(!openForm)} className="text-xs font-black text-indigo-600 hover:text-indigo-700">
+        <button onClick={() => setOpenForm(!openForm)} className="text-xs font-black text-brand-600 hover:text-brand-700">
           {openForm ? 'Cerrar' : latest ? 'Nueva evaluación' : 'Evaluar'}
         </button>
       </div>
@@ -72,7 +72,7 @@ export default function MerciSection({ playerId }: { playerId: string }) {
         <div className="glass rounded-[2rem] p-6 border border-white/50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-bold text-slate-400">{new Date(latest.date).toLocaleDateString()}</span>
-            <span className="text-2xl font-black text-indigo-600">{latest.total}%</span>
+            <span className="text-2xl font-black text-brand-600">{latest.total}%</span>
           </div>
           <MerciRadar scores={latest} />
           <div className="grid grid-cols-5 gap-2 mt-3 text-center">
@@ -113,7 +113,7 @@ export default function MerciSection({ playerId }: { playerId: string }) {
                         <div className="flex gap-1.5">
                           {[5, 4, 3, 2, 1].map((v) => (
                             <button key={v} type="button" onClick={() => setScore(q.code, v)}
-                              className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${scores[q.code] === v ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>{v}</button>
+                              className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${scores[q.code] === v ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400'}`}>{v}</button>
                           ))}
                         </div>
                         {scores[q.code] && (
@@ -127,10 +127,10 @@ export default function MerciSection({ playerId }: { playerId: string }) {
             );
           })}
           <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas (opcional)"
-            className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
           {error && <p className="text-sm font-bold text-rose-600 bg-rose-50 rounded-xl px-4 py-3">{error}</p>}
           <button onClick={submit} disabled={saving}
-            className="w-full bg-indigo-600 text-white font-black py-3.5 rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-60">
+            className="w-full bg-brand-600 text-white font-black py-3.5 rounded-2xl hover:bg-brand-700 transition-all active:scale-95 disabled:opacity-60">
             {saving ? 'Guardando…' : `Guardar evaluación (${answered}/${questions.length})`}
           </button>
         </div>
@@ -143,7 +143,7 @@ export default function MerciSection({ playerId }: { playerId: string }) {
           {history.map((a) => (
             <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
               <span className="text-sm font-bold text-slate-600">{new Date(a.date).toLocaleDateString()}</span>
-              <span className="text-lg font-black text-indigo-600">{a.total}%</span>
+              <span className="text-lg font-black text-brand-600">{a.total}%</span>
             </div>
           ))}
         </div>

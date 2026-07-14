@@ -133,7 +133,7 @@ export default function CoachPage() {
       {/* Cabecera */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+          <div className="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-200">
             <Users size={24} />
           </div>
           <div>
@@ -221,7 +221,7 @@ export default function CoachPage() {
         <button
           type="submit"
           disabled={saving || !form.name.trim()}
-          className="w-full sm:w-auto bg-indigo-600 text-white font-black px-8 py-3 rounded-2xl inline-flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 disabled:opacity-50"
+          className="w-full sm:w-auto bg-brand-600 text-white font-black px-8 py-3 rounded-2xl inline-flex items-center justify-center gap-2 hover:bg-brand-700 transition-all active:scale-95 shadow-lg shadow-brand-100 disabled:opacity-50"
         >
           {saving ? (
             <Loader2 size={18} className="animate-spin" />
@@ -263,12 +263,12 @@ export default function CoachPage() {
                 className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-center justify-between gap-4"
               >
                 <Link href={`/coach/players/${p.id}`} className="min-w-0 group/link">
-                  <div className="font-black text-slate-800 text-lg truncate group-hover/link:text-indigo-600 transition-colors">
+                  <div className="font-black text-slate-800 text-lg truncate group-hover/link:text-brand-600 transition-colors">
                     {p.name}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     {p.level && (
-                      <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-wide">
+                      <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-600 uppercase tracking-wide">
                         {p.level}
                       </span>
                     )}
@@ -296,7 +296,7 @@ export default function CoachPage() {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => startEdit(p)}
-                    className="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all active:scale-90"
+                    className="p-2.5 rounded-xl text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-all active:scale-90"
                     title="Editar"
                   >
                     <Pencil size={18} />
@@ -341,7 +341,7 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
       />
     </label>
   );
@@ -366,7 +366,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
       >
         <option value="">—</option>
         {options.map((o) => (

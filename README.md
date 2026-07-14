@@ -1,6 +1,10 @@
-# PetancaPro Stats
+# perform — Entrenamiento de petanca
 
-Aplicación completa para el registro de partidas de petanca y cálculo de performance técnico individual y por equipo.
+**perform** (antes *PetancaPro*) — Rendimiento. Precisión. Resultado.
+Aplicación completa de entrenamiento y seguimiento de petanca: método MERCI del
+CIEP (evaluaciones, niveles, radar, planes), gestión de torneos, y un contador
+compartible para partidas de parque. Marca: naranja terracota (#DD5A2F) +
+carboncillo (#26231F), flecha ascendente ↗ y wordmark en minúsculas.
 
 ## Arquitectura
 - **Frontend**: Next.js 14 (App Router), Tailwind CSS, Recharts, Lucide React.

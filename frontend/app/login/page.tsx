@@ -124,7 +124,7 @@ export default function LoginPage() {
         className="glass rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/40 border border-white/50"
       >
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+          <div className="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-200">
             <ShieldCheck size={24} />
           </div>
           <div>
@@ -142,7 +142,7 @@ export default function LoginPage() {
         </div>
 
         {needsBootstrap && (
-          <p className="text-sm text-indigo-900/60 font-semibold bg-indigo-50/60 rounded-2xl p-4 my-4">
+          <p className="text-sm text-brand-900/60 font-semibold bg-brand-50/60 rounded-2xl p-4 my-4">
             Es la primera cuenta del sistema: se creará como super administrador
             y podrá gestionar el resto de coaches y jugadores.
           </p>
@@ -182,7 +182,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-xl shadow-indigo-100 disabled:opacity-60"
+            className="w-full bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-700 transition-all active:scale-95 shadow-xl shadow-brand-100 disabled:opacity-60"
           >
             {submitting ? (
               <Loader2 size={20} className="animate-spin" />
@@ -214,7 +214,7 @@ export default function LoginPage() {
               setError(null);
               setMode(mode === 'login' ? 'register' : 'login');
             }}
-            className="w-full text-center text-sm font-bold text-slate-500 hover:text-indigo-600 mt-6 transition-colors"
+            className="w-full text-center text-sm font-bold text-slate-500 hover:text-brand-600 mt-6 transition-colors"
           >
             {mode === 'login'
               ? '¿Un super admin te dio de alta? Crear cuenta de coach'
@@ -257,7 +257,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required
-        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        className="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white/70 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
       />
     </label>
   );
