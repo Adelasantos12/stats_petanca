@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import { Users, Target } from "lucide-react";
+import { Users, Target, Trophy } from "lucide-react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -52,6 +52,13 @@ export default function RootLayout({
               >
                 <Target size={18} />
                 <span className="hidden sm:inline uppercase tracking-wide text-xs">Jugador</span>
+              </Link>
+              <Link
+                href="/tournaments"
+                className="flex items-center gap-1.5 text-sm font-black text-slate-500 hover:text-emerald-600 transition-colors"
+              >
+                <Trophy size={18} />
+                <span className="hidden sm:inline uppercase tracking-wide text-xs">Torneos</span>
               </Link>
             </nav>
           </div>

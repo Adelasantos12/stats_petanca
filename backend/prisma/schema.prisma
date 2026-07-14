@@ -85,6 +85,57 @@ model MerciItem {
   score        Int // 1-5
 }
 
+// --- Torneos ---
+model Tournament {
+  id           String            @id @default(uuid())
+  name         String
+  format       String // ROUND_ROBIN, SINGLE_ELIM
+  modality     String            @default("DOUBLES") // SINGLE, DOUBLES, TRIPLES (informativo)
+  status       String            @default("SETUP") // SETUP, RUNNING, FINISHED
+  targetPoints Int               @default(13)
+  organizerId  String?
+  createdAt    DateTime          @default(now())
+  entries      TournamentEntry[]
+  rounds       Round[]
+}
+
+// Un participante del torneo (equipo; en individual, un "equipo" de uno).
+model TournamentEntry {
+  id            String     @id @default(uuid())
+  tournamentId  String
+  tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name          String
+  seed          Int?
+  played        Int        @default(0)
+  wins          Int        @default(0)
+  losses        Int        @default(0)
+  pointsFor     Int        @default(0)
+  pointsAgainst Int        @default(0)
+}
+
+model Round {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  number       Int
+  pairings     Pairing[]
+}
+
+// Enfrentamiento. entryAId/entryBId son ids de TournamentEntry (sin relación dura
+// para evitar múltiples FKs). entryBId null = BYE. nextPairingId enlaza el árbol.
+model Pairing {
+  id            String  @id @default(uuid())
+  roundId       String
+  round         Round   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  slot          Int     @default(0)
+  entryAId      String?
+  entryBId      String?
+  scoreA        Int?
+  scoreB        Int?
+  winnerEntryId String?
+  nextPairingId String?
+}
+
 // Ejercicio de la biblioteca, etiquetado por dimensión MERCI.
 // M=Motricidad, E=Emociones, R=Relaciones, C=Cinco Sentidos, I=Inteligencia
 model Drill {
