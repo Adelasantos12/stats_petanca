@@ -7,12 +7,13 @@
   --background-start-rgb: 248, 250, 252;
   --background-end-rgb: 241, 245, 249;
 
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
+  --primary: #DD5A2F;
+  --primary-hover: #BC481F;
   --success: #10b981;
   --danger: #f43f5e;
   --warning: #f59e0b;
   --info: #0ea5e9;
+  --ink: #26231F;
 }
 
 body {
@@ -35,11 +36,11 @@ body {
   }
 
   .shadow-glow {
-    box-shadow: 0 0 20px -5px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 0 20px -5px rgba(221, 90, 47, 0.25);
   }
 
   .btn-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700 transition-all duration-300 shadow-lg shadow-indigo-200 active:scale-95;
+    @apply bg-brand-600 text-white hover:bg-brand-700 transition-all duration-300 shadow-lg shadow-brand-200 active:scale-95;
   }
 
   .card-modern {

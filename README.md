@@ -1,6 +1,10 @@
-# PetancaPro Stats
+# perform — Entrenamiento de petanca
 
-Aplicación completa para el registro de partidas de petanca y cálculo de performance técnico individual y por equipo.
+**perform** (antes *PetancaPro*) — Rendimiento. Precisión. Resultado.
+Aplicación completa de entrenamiento y seguimiento de petanca: método MERCI del
+CIEP (evaluaciones, niveles, radar, planes), gestión de torneos, y un contador
+compartible para partidas de parque. Marca: naranja terracota (#DD5A2F) +
+carboncillo (#26231F), flecha ascendente ↗ y wordmark en minúsculas.
 
 ## Arquitectura
 - **Frontend**: Next.js 14 (App Router), Tailwind CSS, Recharts, Lucide React.
@@ -32,3 +36,44 @@ El cálculo de performance sigue la fórmula:
 
 Donde `n` es la cantidad de lanzamientos y `Suma` es la suma de los scores de efectividad.
 Las manos anuladas se excluyen automáticamente del cálculo.
+
+## Módulo del Coach (autenticación + roster)
+
+Área privada para que el entrenador administre a sus jugadores de forma persistente.
+
+- **Backend**: módulo `auth` (JWT) con roles `COACH` / `SUPER_ADMIN` y módulo
+  `players` (CRUD del roster, con propiedad por coach). El primer coach que se
+  registra queda como `SUPER_ADMIN`; después, solo un super admin puede dar de
+  alta a más coaches.
+- **Frontend**: `/login` (alta del primer super-admin, login por email/contraseña
+  y, opcionalmente, Google) y `/coach` (gestión del roster).
+- **Login con Google** (opcional y simple): se activa poniendo `GOOGLE_CLIENT_ID`
+  en el backend y `NEXT_PUBLIC_GOOGLE_CLIENT_ID` en el frontend (mismo Client ID
+  de tipo *Web* de Google Cloud). Si no se configura, el botón se oculta y sigue
+  funcionando el login por email/contraseña.
+- **Login del jugador**: en `/player/login` el jugador crea su cuenta con el
+  **mismo email** que el coach registró en el roster (reclama su ficha y conserva
+  su historial) o con Google. En `/player` ve su nivel, su rendimiento acumulado,
+  qué le falta para subir de nivel y su historial de evaluaciones (solo lectura).
+  Los tokens de coach y de jugador están separados: ninguno puede usar los
+  endpoints del otro.
+- **Niveles y evaluaciones**: 5 niveles (Iniciación→Élite) con rúbricas se crean
+  automáticamente al arrancar. Desde la ficha del jugador, el coach registra la
+  evaluación por criterio y, si se cumplen los umbrales, promueve de nivel.
+
+### Variables de entorno nuevas (backend)
+
+```
+JWT_SECRET="un-secreto-largo-y-aleatorio"   # obligatorio en producción
+JWT_EXPIRES_IN="30d"                          # opcional
+GOOGLE_CLIENT_ID=""                           # opcional (login con Google)
+```
+
+### Sincronizar el esquema (Postgres / Railway)
+
+El modelo añade la tabla `Coach` y columnas nuevas en `Player` (todas opcionales,
+no destructivas). Tras desplegar, sincroniza el esquema:
+
+```
+cd backend && npx prisma db push
+```

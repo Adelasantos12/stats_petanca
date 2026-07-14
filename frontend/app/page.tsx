@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { Match } from '@/types';
-import { PlusCircle, Trophy, Clock, ChevronRight, Activity } from 'lucide-react';
+import { PlusCircle, Trophy, Clock, ChevronRight, Activity, Zap, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -49,12 +49,28 @@ export default function Home() {
         </div>
         <Link
           href="/matches/new"
-          className="bg-indigo-600 text-white p-4 rounded-2xl flex items-center gap-2 font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95"
+          className="bg-brand-600 text-white p-4 rounded-2xl flex items-center gap-2 font-bold hover:bg-brand-700 transition-all shadow-xl shadow-brand-100 active:scale-95"
         >
           <PlusCircle size={24} />
           <span className="hidden sm:inline">Nueva Partida</span>
         </Link>
       </div>
+
+      {/* Contador rápido del parque (gancho sin fricción) */}
+      <Link href="/contador"
+        className="block bg-gradient-to-br from-brand-600 to-brand-800 rounded-[2rem] p-6 shadow-xl shadow-brand-200/60 text-white relative overflow-hidden active:scale-[0.99] transition-transform">
+        <div className="absolute -right-6 -top-6 opacity-15 rotate-12"><Zap size={130} /></div>
+        <div className="flex items-center justify-between relative">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-200">Sin registro · sin conexión</div>
+            <div className="text-2xl font-black mt-1">Contador rápido</div>
+            <div className="text-brand-100 font-semibold text-sm mt-1 flex items-center gap-1.5">
+              <Share2 size={14} /> Marca y comparte el resultado
+            </div>
+          </div>
+          <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"><ChevronRight size={28} /></div>
+        </div>
+      </Link>
 
       {loading ? (
         <div className="grid gap-6">
@@ -72,7 +88,7 @@ export default function Home() {
             <Activity size={40} />
           </div>
           <p className="text-slate-500 mb-6 text-lg font-medium">No hay partidas registradas.</p>
-          <Link href="/matches/new" className="text-indigo-600 font-black text-lg underline-offset-4 hover:underline">
+          <Link href="/matches/new" className="text-brand-600 font-black text-lg underline-offset-4 hover:underline">
             Crea tu primera partida ahora
           </Link>
         </motion.div>
@@ -91,10 +107,10 @@ export default function Home() {
               >
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-black text-slate-400 flex items-center gap-1 uppercase tracking-widest">
-                    <Clock size={12} className="text-indigo-500" />
+                    <Clock size={12} className="text-brand-500" />
                     {format(new Date(match.createdAt), "d 'de' MMMM, HH:mm", { locale: es })}
                   </div>
-                  <div className="text-2xl font-black text-slate-800 group-hover:text-indigo-600 transition-colors">
+                  <div className="text-2xl font-black text-slate-800 group-hover:text-brand-600 transition-colors">
                     {match.teamAName} <span className="text-slate-300 font-light mx-1">vs</span> {match.teamBName}
                   </div>
                   <div className="flex gap-2 items-center">
@@ -117,7 +133,7 @@ export default function Home() {
                     </div>
                     <div className="text-xl font-black text-slate-800">{match.targetPoints}</div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
                     <ChevronRight size={24} />
                   </div>
                 </div>

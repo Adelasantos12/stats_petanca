@@ -25,11 +25,228 @@ model Match {
   throws       Throw[]
 }
 
+model Coach {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String? // hash bcrypt; null si la cuenta es solo social (Google)
+  provider  String   @default("password") // password, google
+  googleId  String?  @unique
+  avatarUrl String?
+  role      String   @default("COACH") // COACH, SUPER_ADMIN
+  createdAt DateTime @default(now())
+  players   Player[]
+}
+
 model Player {
-  id      String        @id @default(uuid())
-  name    String
-  matches MatchPlayer[]
-  throws  Throw[]
+  id        String        @id @default(uuid())
+  name      String
+  email     String?
+  category  String? // BENJAMIN, MINIME, CADET, JUNIOR, SENIOR, VETERAN...
+  level     String? // Iniciación, Bronce, Plata, Oro, Élite
+  notes     String?
+  password  String? // hash bcrypt; null si el jugador aún no reclamó su cuenta
+  provider  String   @default("none") // none, password, google
+  googleId  String?  @unique
+  coachId   String? // dueño del jugador (roster del coach); null = jugador suelto de partido
+  coach     Coach?        @relation(fields: [coachId], references: [id])
+  createdAt DateTime      @default(now())
+  matches   MatchPlayer[]
+  throws    Throw[]
+  evaluations Evaluation[]
+  plans     TrainingPlan[]
+  sessions  TrainingSession[]
+  merciAssessments MerciAssessment[]
+}
+
+// Evaluación observacional MERCI (30 preguntas 1-5 → radar de 5 dimensiones).
+model MerciAssessment {
+  id       String      @id @default(uuid())
+  playerId String
+  player   Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId  String?
+  date     DateTime    @default(now())
+  notes    String?
+  scoreM   Float // 0-100 por dimensión
+  scoreE   Float
+  scoreR   Float
+  scoreC   Float
+  scoreI   Float
+  total    Float // 0-100 global
+  items    MerciItem[]
+}
+
+model MerciItem {
+  id           String          @id @default(uuid())
+  assessmentId String
+  assessment   MerciAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  code         String // "1.1"
+  dimension    String
+  score        Int // 1-5
+}
+
+// --- Torneos ---
+model Tournament {
+  id           String            @id @default(uuid())
+  name         String
+  format       String // ROUND_ROBIN, SINGLE_ELIM
+  modality     String            @default("DOUBLES") // SINGLE, DOUBLES, TRIPLES (informativo)
+  status       String            @default("SETUP") // SETUP, RUNNING, FINISHED
+  targetPoints Int               @default(13)
+  organizerId  String?
+  createdAt    DateTime          @default(now())
+  entries      TournamentEntry[]
+  rounds       Round[]
+}
+
+// Un participante del torneo (equipo; en individual, un "equipo" de uno).
+model TournamentEntry {
+  id            String     @id @default(uuid())
+  tournamentId  String
+  tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name          String
+  seed          Int?
+  played        Int        @default(0)
+  wins          Int        @default(0)
+  losses        Int        @default(0)
+  pointsFor     Int        @default(0)
+  pointsAgainst Int        @default(0)
+}
+
+model Round {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  number       Int
+  pairings     Pairing[]
+}
+
+// Enfrentamiento. entryAId/entryBId son ids de TournamentEntry (sin relación dura
+// para evitar múltiples FKs). entryBId null = BYE. nextPairingId enlaza el árbol.
+model Pairing {
+  id            String  @id @default(uuid())
+  roundId       String
+  round         Round   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  slot          Int     @default(0)
+  entryAId      String?
+  entryBId      String?
+  scoreA        Int?
+  scoreB        Int?
+  winnerEntryId String?
+  nextPairingId String?
+}
+
+// Ejercicio de la biblioteca, etiquetado por dimensión MERCI.
+// M=Motricidad, E=Emociones, R=Relaciones, C=Cinco Sentidos, I=Inteligencia
+model Drill {
+  id           String     @id @default(uuid())
+  title        String
+  dimension    String // M, E, R, C, I
+  description  String?
+  targetMetric String? // "20 bolas de tir a 8m, objetivo ≥60%"
+  coachId      String? // null = ejercicio global (semilla)
+  createdAt    DateTime   @default(now())
+  planItems    PlanItem[]
+}
+
+// Plan de entrenamiento asignado a un jugador por su coach.
+model TrainingPlan {
+  id        String            @id @default(uuid())
+  playerId  String
+  player    Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId   String?
+  name      String
+  focus     String? // dimensión dominante o descripción del bloque
+  status    String            @default("ACTIVE") // ACTIVE, DONE, ARCHIVED
+  createdAt DateTime          @default(now())
+  items     PlanItem[]
+  sessions  TrainingSession[]
+}
+
+model PlanItem {
+  id      String       @id @default(uuid())
+  planId  String
+  plan    TrainingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  drillId String
+  drill   Drill        @relation(fields: [drillId], references: [id])
+  week    Int          @default(1)
+  reps    Int          @default(1)
+  order   Int          @default(0)
+}
+
+// Sesión de entrenamiento registrada por el jugador (autónomo).
+model TrainingSession {
+  id       String          @id @default(uuid())
+  playerId String
+  player   Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  planId   String?
+  plan     TrainingPlan?   @relation(fields: [planId], references: [id])
+  date     DateTime        @default(now())
+  mood     Int? // diario emocional 1-5
+  notes    String?
+  results  SessionResult[]
+}
+
+model SessionResult {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  drillId   String?
+  label     String
+  attempts  Int?
+  successes Int?
+  avgScore  Float? // escala -2..+2
+  done      Boolean         @default(true)
+}
+
+// Nivel dentro del recorrido del jugador (Iniciación → Élite).
+model Level {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  order       Int              @unique
+  description String?
+  criteria    LevelCriterion[]
+  evaluations Evaluation[]
+}
+
+// Criterio observable/medible de un nivel (rúbrica). Ej: "Tir a 7-8m ≥ 55%".
+model LevelCriterion {
+  id        String  @id @default(uuid())
+  levelId   String
+  level     Level   @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  label     String
+  dimension String? // M, E, R, C, I (marco MERCI) — opcional
+  target    Float // umbral a alcanzar (p.ej. 55 = 55%)
+  unit      String  @default("%") // %, m, pts... informativo
+  order     Int     @default(0)
+}
+
+// Evaluación de un jugador para intentar superar un nivel.
+model Evaluation {
+  id            String           @id @default(uuid())
+  playerId      String
+  player        Player           @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId       String? // quién evaluó (sin FK dura)
+  targetLevelId String?
+  targetLevel   Level?           @relation(fields: [targetLevelId], references: [id])
+  date          DateTime         @default(now())
+  passed        Boolean          @default(false)
+  notes         String?
+  items         EvaluationItem[]
+}
+
+// Resultado de un criterio dentro de una evaluación.
+model EvaluationItem {
+  id           String     @id @default(uuid())
+  evaluationId String
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  criterionId  String?
+  label        String
+  target       Float
+  attempts     Int
+  successes    Int
+  score        Float // % de acierto = successes/attempts*100
+  met          Boolean // ¿alcanzó el umbral?
 }
 
 model MatchPlayer {

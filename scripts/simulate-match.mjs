@@ -13,8 +13,8 @@ const createRes = await api.post('/matches', {
   targetPoints: 13,
   teamAName: 'Azules',
   teamBName: 'Rojos',
-  playersA: ['Ana', 'Ariel'],
-  playersB: ['Bruno', 'Bianca'],
+  playersA: [{ name: 'Ana' }, { name: 'Ariel' }],
+  playersB: [{ name: 'Bruno' }, { name: 'Bianca' }],
 });
 
 const matchId = createRes.data.id;

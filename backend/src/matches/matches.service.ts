@@ -1,17 +1,59 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateMatchDto } from './dto/create-match.dto';
+import { CreateMatchDto, PlayerInputDto } from './dto/create-match.dto';
 import { CloseHandDto } from './dto/close-hand.dto';
 import { FinishMatchDto } from './dto/finish-match.dto';
+import { AuthCoach } from '../auth/current-coach.decorator';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MatchesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createMatchDto: CreateMatchDto) {
+  /**
+   * Resuelve un jugador de la partida: si viene con `id` lo toma del roster
+   * (verificando que exista); si viene solo con `name` lo crea, vinculándolo al
+   * coach autenticado para que su historial se acumule bajo su roster.
+   */
+  private async resolvePlayerId(
+    tx: Prisma.TransactionClient,
+    input: PlayerInputDto,
+    coach?: AuthCoach,
+  ): Promise<string> {
+    if (input.id) {
+      const existing = await tx.player.findUnique({ where: { id: input.id } });
+      if (!existing) {
+        throw new NotFoundException(`Jugador ${input.id} no existe en el roster`);
+      }
+      return existing.id;
+    }
+    const created = await tx.player.create({
+      data: { name: input.name!.trim(), coachId: coach?.id ?? null },
+    });
+    return created.id;
+  }
+
+  async create(createMatchDto: CreateMatchDto, coach?: AuthCoach) {
     try {
       const { modality, targetPoints, teamAName, teamBName, playersA, playersB } =
         createMatchDto;
+
+      const inputs = [
+        ...playersA.map((p) => ({ input: p, side: 'A' })),
+        ...playersB.map((p) => ({ input: p, side: 'B' })),
+      ];
+
+      for (const { input } of inputs) {
+        if (!input.id && !input.name?.trim()) {
+          throw new BadRequestException(
+            'Cada jugador debe tener un id del roster o un nombre',
+          );
+        }
+      }
 
       return await this.prisma.$transaction(async (tx) => {
         const match = await tx.match.create({
@@ -23,20 +65,13 @@ export class MatchesService {
           },
         });
 
-        const allPlayers = [
-          ...playersA.map((name) => ({ name, side: 'A' })),
-          ...playersB.map((name) => ({ name, side: 'B' })),
-        ];
-
-        for (const p of allPlayers) {
-          const player = await tx.player.create({
-            data: { name: p.name },
-          });
+        for (const { input, side } of inputs) {
+          const playerId = await this.resolvePlayerId(tx, input, coach);
           await tx.matchPlayer.create({
             data: {
               matchId: match.id,
-              playerId: player.id,
-              teamSide: p.side,
+              playerId,
+              teamSide: side,
             },
           });
         }

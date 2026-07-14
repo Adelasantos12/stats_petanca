@@ -1,16 +1,16 @@
 {
-  "name": "PetancaPro Stats",
-  "short_name": "PetancaPro",
-  "description": "Registro de performance técnico de petanca",
+  "name": "perform — Entrenamiento de petanca",
+  "short_name": "perform",
+  "description": "Entrenamiento de petanca. Rendimiento. Precisión. Resultado.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#F0EDE6",
+  "theme_color": "#DD5A2F",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3504/3504384.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ]
 }

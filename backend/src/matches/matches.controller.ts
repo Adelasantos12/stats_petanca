@@ -1,21 +1,45 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { CloseHandDto } from './dto/close-hand.dto';
 import { FinishMatchDto } from './dto/finish-match.dto';
 import { CreateThrowDto } from '../throws/dto/create-throw.dto';
 import { ThrowsService } from '../throws/throws.service';
+import type { AuthCoach } from '../auth/current-coach.decorator';
 
 @Controller('matches')
 export class MatchesController {
   constructor(
     private readonly matchesService: MatchesService,
     private readonly throwsService: ThrowsService,
+    private readonly jwt: JwtService,
   ) {}
 
   @Post()
-  create(@Body() createMatchDto: CreateMatchDto) {
-    return this.matchesService.create(createMatchDto);
+  async create(@Body() createMatchDto: CreateMatchDto, @Req() req: any) {
+    const coach = await this.optionalCoach(req.headers?.authorization);
+    return this.matchesService.create(createMatchDto, coach);
+  }
+
+  /** Lee el coach del Bearer token si viene; la creación de partida sigue siendo pública. */
+  private async optionalCoach(
+    header?: string,
+  ): Promise<AuthCoach | undefined> {
+    if (!header?.startsWith('Bearer ')) return undefined;
+    try {
+      const payload = await this.jwt.verifyAsync(
+        header.slice('Bearer '.length).trim(),
+      );
+      return {
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role,
+        name: payload.name,
+      };
+    } catch {
+      return undefined;
+    }
   }
 
   @Get()

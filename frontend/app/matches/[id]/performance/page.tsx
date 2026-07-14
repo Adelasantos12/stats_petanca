@@ -116,14 +116,14 @@ export default function Performance() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           whileHover={{ scale: 1.02 }}
-          className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-200/50 relative overflow-hidden"
+          className="bg-brand-600 p-8 rounded-[2.5rem] shadow-2xl shadow-brand-200/50 relative overflow-hidden"
         >
           <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
             <Medal size={120} />
           </div>
-          <div className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em] mb-2">{match.teamAName}</div>
+          <div className="text-[10px] font-black text-brand-200 uppercase tracking-[0.2em] mb-2">{match.teamAName}</div>
           <div className="text-4xl md:text-6xl font-black text-white">{performance.teams.A.performance || '0'}%</div>
-          <div className="text-[10px] text-indigo-100 font-black mt-3 flex items-center gap-1">
+          <div className="text-[10px] text-brand-100 font-black mt-3 flex items-center gap-1">
              <Activity size={12} /> GLOBAL EQUIPO
           </div>
         </motion.div>
@@ -149,7 +149,7 @@ export default function Performance() {
       {/* Individual Player Cards */}
       <div className="space-y-6">
         <h3 className="font-black text-slate-800 flex items-center gap-2 text-xl tracking-tight">
-            <Award size={24} className="text-indigo-600" /> Rendimiento Individual
+            <Award size={24} className="text-brand-600" /> Rendimiento Individual
         </h3>
         <div className="grid md:grid-cols-2 gap-6">
           {performance.players.map((p, idx) => (
@@ -163,7 +163,7 @@ export default function Performance() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="text-xl font-black text-slate-800 leading-none mb-1">{p.playerName}</div>
-                  <div className={`text-[10px] font-black px-3 py-1 rounded-full inline-block uppercase tracking-widest ${p.teamSide === 'A' ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'}`}>
+                  <div className={`text-[10px] font-black px-3 py-1 rounded-full inline-block uppercase tracking-widest ${p.teamSide === 'A' ? 'bg-brand-50 text-brand-600' : 'bg-rose-50 text-rose-600'}`}>
                     {p.teamSide === 'A' ? match.teamAName : match.teamBName}
                   </div>
                 </div>
@@ -197,7 +197,7 @@ export default function Performance() {
       {/* Charts Section */}
       <div className="space-y-8">
         <h3 className="font-black text-slate-800 flex items-center gap-2 text-xl tracking-tight">
-            <TrendingUp size={24} className="text-indigo-600" /> Visualización de Datos
+            <TrendingUp size={24} className="text-brand-600" /> Visualización de Datos
         </h3>
 
         <div className="grid gap-8">
@@ -290,11 +290,11 @@ export default function Performance() {
                     </LineChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="mt-8 flex items-start gap-4 bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100/50">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                <div className="mt-8 flex items-start gap-4 bg-brand-50/50 p-6 rounded-[2rem] border border-brand-100/50">
+                    <div className="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 shrink-0">
                         <Info size={20} />
                     </div>
-                    <p className="text-xs text-indigo-900/60 font-bold leading-relaxed">
+                    <p className="text-xs text-brand-900/60 font-bold leading-relaxed">
                         Este análisis técnico avanzado muestra la consistencia de cada equipo. Las fluctuaciones indican periodos de fatiga o presión técnica durante el encuentro.
                     </p>
                 </div>

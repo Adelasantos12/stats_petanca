@@ -3,6 +3,15 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { MatchesModule } from './matches/matches.module';
 import { ThrowsModule } from './throws/throws.module';
+import { AuthModule } from './auth/auth.module';
+import { PlayersModule } from './players/players.module';
+import { LevelsModule } from './levels/levels.module';
+import { EvaluationsModule } from './evaluations/evaluations.module';
+import { PlayerAuthModule } from './player-auth/player-auth.module';
+import { TrainingModule } from './training/training.module';
+import { MerciModule } from './merci/merci.module';
+import { TournamentsModule } from './tournaments/tournaments.module';
+import { GamificationModule } from './gamification/gamification.module';
 import { HealthController } from './health/health.controller';
 import { HealthService } from './health/health.service';
 
@@ -10,6 +19,15 @@ import { HealthService } from './health/health.service';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    AuthModule,
+    PlayersModule,
+    LevelsModule,
+    EvaluationsModule,
+    PlayerAuthModule,
+    TrainingModule,
+    MerciModule,
+    TournamentsModule,
+    GamificationModule,
     MatchesModule,
     ThrowsModule,
   ],
