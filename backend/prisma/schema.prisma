@@ -56,6 +56,33 @@ model Player {
   evaluations Evaluation[]
   plans     TrainingPlan[]
   sessions  TrainingSession[]
+  merciAssessments MerciAssessment[]
+}
+
+// Evaluación observacional MERCI (30 preguntas 1-5 → radar de 5 dimensiones).
+model MerciAssessment {
+  id       String      @id @default(uuid())
+  playerId String
+  player   Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId  String?
+  date     DateTime    @default(now())
+  notes    String?
+  scoreM   Float // 0-100 por dimensión
+  scoreE   Float
+  scoreR   Float
+  scoreC   Float
+  scoreI   Float
+  total    Float // 0-100 global
+  items    MerciItem[]
+}
+
+model MerciItem {
+  id           String          @id @default(uuid())
+  assessmentId String
+  assessment   MerciAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  code         String // "1.1"
+  dimension    String
+  score        Int // 1-5
 }
 
 // Ejercicio de la biblioteca, etiquetado por dimensión MERCI.

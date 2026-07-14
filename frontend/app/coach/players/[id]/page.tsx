@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import EvaluationSection from './EvaluationSection';
+import MerciSection from './MerciSection';
 import PlanSection from './PlanSection';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Target, Zap, Activity, TrendingUp, Award } from 'lucide-react';
@@ -158,6 +159,9 @@ export default function PlayerDevelopment() {
 
       {/* Evaluación de nivel (rúbricas + promoción) */}
       <EvaluationSection playerId={String(id)} onPromoted={loadDev} />
+
+      {/* Evaluación MERCI (radar de 5 dimensiones) */}
+      <MerciSection playerId={String(id)} />
 
       {/* Plan de entrenamiento (MERCI) */}
       <PlanSection playerId={String(id)} />

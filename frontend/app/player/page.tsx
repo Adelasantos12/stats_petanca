@@ -12,6 +12,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import MyPlan from './MyPlan';
+import MerciRadar, { MerciScores } from '@/components/MerciRadar';
 
 interface Metrics { n: number; performance: number | null; }
 interface PerMatch { matchId: string; date: string | null; teams: string | null; performance: number | null; n: number; }
@@ -35,6 +36,7 @@ export default function PlayerDashboard() {
   const [dev, setDev] = useState<Development | null>(null);
   const [next, setNext] = useState<NextLevel | null>(null);
   const [evals, setEvals] = useState<Evaluation[]>([]);
+  const [merci, setMerci] = useState<(MerciScores & { date: string }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,8 +48,12 @@ export default function PlayerDashboard() {
       api.get('/player-auth/me/development'),
       api.get('/player-auth/me/next-level'),
       api.get('/player-auth/me/evaluations'),
+      api.get('/player-auth/me/merci'),
     ])
-      .then(([d, n, e]) => { setDev(d.data); setNext(n.data); setEvals(e.data); })
+      .then(([d, n, e, m]) => {
+        setDev(d.data); setNext(n.data); setEvals(e.data);
+        setMerci(m.data?.[0] ?? null);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [router]);
@@ -94,6 +100,20 @@ export default function PlayerDashboard() {
         <Stat icon={<Zap size={16} className="text-amber-500" />} label="Tir" value={pct(dev.tir.performance)} sub={`n = ${dev.tir.n}`} />
         <Stat icon={<Activity size={16} className="text-slate-400" />} label="Partidas" value={`${dev.matchesPlayed}`} sub={`${dev.total.n} lanzamientos`} />
       </div>
+
+      {/* Radar MERCI (última evaluación del coach) */}
+      {merci && (
+        <div className="glass rounded-[2rem] p-6 shadow-xl shadow-slate-200/30 border border-white/50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-black text-slate-700 flex items-center gap-2 text-sm uppercase tracking-widest">Tu perfil MERCI</h3>
+            <span className="text-2xl font-black text-amber-500">{merci.total}%</span>
+          </div>
+          <MerciRadar scores={merci} color="#f59e0b" />
+          <p className="text-[11px] text-slate-400 font-medium text-center mt-1">
+            Última evaluación de tu entrenador · {new Date(merci.date).toLocaleDateString()}
+          </p>
+        </div>
+      )}
 
       {/* Qué te falta para subir */}
       {next && !next.atMax && next.nextLevel && (
