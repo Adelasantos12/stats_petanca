@@ -25,11 +25,31 @@ model Match {
   throws       Throw[]
 }
 
+model Coach {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String? // hash bcrypt; null si la cuenta es solo social (Google)
+  provider  String   @default("password") // password, google
+  googleId  String?  @unique
+  avatarUrl String?
+  role      String   @default("COACH") // COACH, SUPER_ADMIN
+  createdAt DateTime @default(now())
+  players   Player[]
+}
+
 model Player {
-  id      String        @id @default(uuid())
-  name    String
-  matches MatchPlayer[]
-  throws  Throw[]
+  id        String        @id @default(uuid())
+  name      String
+  email     String?
+  category  String? // BENJAMIN, MINIME, CADET, JUNIOR, SENIOR, VETERAN...
+  level     String? // Iniciación, Bronce, Plata, Oro, Élite
+  notes     String?
+  coachId   String? // dueño del jugador (roster del coach); null = jugador suelto de partido
+  coach     Coach?        @relation(fields: [coachId], references: [id])
+  createdAt DateTime      @default(now())
+  matches   MatchPlayer[]
+  throws    Throw[]
 }
 
 model MatchPlayer {
